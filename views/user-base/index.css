@@ -1,0 +1,8 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/app.css";
+@import "./styles/card-header.css";
+@import "./styles/section-title.css";
+@import "../../components/status-box/index.css";
+@import "../../components/exploration-box/index.css";
+@import "../../components/home-box/index.css";
+@import "../../components/character-box/index.css";

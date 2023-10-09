@@ -1,0 +1,9 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/base.css";
+@import "./styles/character-normal.css";
+@import "./styles/character-skill.css";
+@import "./styles/weapon.css";
+@import "./styles/info-card.css";
+@import "./styles/info-line.css";
+@import "./styles/materials-item.css";
+@import "./styles/materials-list.css";

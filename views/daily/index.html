@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>daily</title>
+	<link rel="stylesheet" href="index.css"/>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script type="importmap">
+	{
+	  "imports": {
+		"vue": "https://unpkg.com/vue@3.2.47/dist/vue.esm-browser.js",
+		"moment": "https://cdn.staticfile.org/moment.js/2.29.4/moment-with-locales.min.js"
+	  }
+	}
+</script>
+<script type="module">
+	import App from "./components/app.js";
+	import {createApp} from "vue";
+
+	createApp(App).mount("#app");
+</script>
+
+</body>
+</html>
+
+<style>
+	#app {
+		width: 1180px;
+		--primary-base: #F9F5F1;
+		--primary-dark: #886444;
+		--shadow-base: rgba(136, 100, 68, 0.2);
+		--shadow-dark: rgba(136, 100, 68, 1);
+	}
+</style>

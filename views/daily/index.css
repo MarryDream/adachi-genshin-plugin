@@ -1,0 +1,5 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/daily-header.css";
+@import "./styles/material.css";
+@import "./styles/event.css";
+@import "./styles/common-title.css";

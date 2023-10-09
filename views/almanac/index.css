@@ -1,0 +1,5 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/app.css";
+@import "./styles/header.css";
+@import "./styles/fortune.css";
+@import "./styles/footer.css";

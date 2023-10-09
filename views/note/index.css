@@ -1,0 +1,4 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/app.css";
+@import "./styles/info.css";
+@import "./styles/expedition.css";

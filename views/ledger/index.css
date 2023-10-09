@@ -1,0 +1,5 @@
+@import "../../assets/styles/reset.css";
+@import "./styles/app.css";
+@import "../../components/section-title/index.css";
+@import "./styles/data-piece.css";
+@import "./styles/data-chart.css";

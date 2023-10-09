@@ -1,0 +1,6 @@
+@import "../../assets/styles/reset.css";
+@import "../../assets/styles/icon.css";
+@import "./styles/app.css";
+@import "./styles/equipment.css";
+@import "./styles/infoCard.css";
+@import "./styles/score-chart.css";
