@@ -33,5 +33,7 @@ export default defineComponent( {
 		onMounted( () => {
 			getData();
 		} );
+		
+		return { data };
 	}
 } );

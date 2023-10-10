@@ -11,7 +11,7 @@ import { urlParamsGet } from "../../../front-utils/url.js";
 import InfoBase from "./base.js";
 import InfoWeapon from "./weapon.js";
 import InfoCharacter from "./character.js";
-import { initBaseColor } from "#/genshin/front-utils/data-parser";
+import { initBaseColor } from "../../../front-utils/data-parser.js";
 
 export default defineComponent( {
 	name: "InfoApp",

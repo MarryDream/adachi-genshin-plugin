@@ -11,7 +11,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, red
 		return;
 	}
 	const res: RenderResult = await renderer.asSegment(
-		"/artifact",
+		"/artifact/index.html",
 		{ qq: userID, type: "rein" }
 	);
 	if ( res.code === "ok" ) {

@@ -10,7 +10,6 @@ const template = `<header class="header">
 </header>`;
 
 import { defineComponent, computed } from "vue";
-import moment from "moment";
 
 export default defineComponent( {
 	name: "DailyHeader",

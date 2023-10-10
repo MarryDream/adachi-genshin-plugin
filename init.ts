@@ -47,17 +47,12 @@ function initModules( cookie: string[] ) {
 export default definePlugin( {
 	name: "原神",
 	cfgList,
-	renderer: {
-		mainFiles: [ "index", "app" ]
-	},
 	server: {
 		routers
 	},
 	assets: {
 		manifestUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com/adachi-bot/version3/genshin_assets_manifest.yml",
 		downloadBaseUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com",
-		pathField: "name",
-		modifiedField: "lastModified",
 		overflowPrompt: "更新文件数量超过阈值，请手动前往 https://github.com/SilveryStar/Adachi-BOT/release 更新资源包",
 		replacePath: path => {
 			return path.replace( "adachi-bot/version3/genshin/", "" );
@@ -109,7 +104,7 @@ export default definePlugin( {
 			cookies = new m.Cookies( config.cookies );
 		} );
 		/* 实例化渲染器 */
-		renderer = param.renderRegister( "#app" );
+		renderer = param.renderRegister( "#app", "views" );
 		initModules( cookieCfg.cookies );
 	}
 } );

@@ -3,10 +3,9 @@ const template = `<div class="character">
 	<character-normal v-else :data="data"></character-normal>
 </div>`;
 
+import { defineComponent } from "vue";
 import CharacterNormal from "./character-normal.js";
 import CharacterSkill from "./character-skill.js";
-
-const { defineComponent } = Vue;
 
 export default defineComponent( {
 	name: "InfoCharacter",

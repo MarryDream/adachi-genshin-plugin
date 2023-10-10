@@ -50,7 +50,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 	};
 	for ( let floor of floorList ) {
 		const res: RenderResult = await renderer.asBase64(
-			"/abyss", { qq: userID, floor }
+			"/abyss/index.html", { qq: userID, floor }
 		);
 		if ( res.code === "error" ) {
 			logger.error( res.error );
@@ -88,7 +88,7 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: number, {
 	} );
 	
 	const res: RenderResult = await renderer.asSegment(
-		"/abyss-single", { qq: userID }
+		"/abyss-single/index.html", { qq: userID }
 	);
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );

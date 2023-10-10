@@ -39,7 +39,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	}
 	
 	const res: RenderResult = await renderer.asSegment(
-		"/card", {
+		"/card/index.html", {
 			qq: userID,
 			style: config.cardWeaponStyle,
 			profile: config.cardProfile,

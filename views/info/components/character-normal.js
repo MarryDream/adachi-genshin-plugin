@@ -14,7 +14,6 @@ const template = `<div class="character-normal">
 		</info-card>
 		<info-card class="constellations-card" title="命座信息" direction="row">
 			<div class="constellations-item" v-for="i in 4" :key="i">
-			<div class="constellations-item" v-for="i in 4" :key="i">
 				<p class="level">{{ numCN[i - 1] }}</p>
 				<p class="content">{{ data.constellations[i - 1].desc }}</p>
 			</div>

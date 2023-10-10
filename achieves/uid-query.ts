@@ -60,7 +60,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	}
 	
 	const res: RenderResult = await renderer.asSegment(
-		"/user-base", {
+		"/user-base/index.html", {
 			qq: target, stranger,
 			style: config.cardWeaponStyle,
 			profile: config.cardProfile

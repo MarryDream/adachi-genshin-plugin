@@ -1,5 +1,3 @@
-import { ArtifactInfo } from "#/genshin/types";
-
 const template = `<div class="info-artifact">
 	<template v-if="data">
 		<header>

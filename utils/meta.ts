@@ -7,7 +7,7 @@ import { FortuneData } from "#/genshin/module/almanac";
 import { CharacterList, WeaponList } from "#/genshin/module/type";
 import { isJsonString } from "@/utils/verify";
 
-const basePath = "/genshin/adachi-assets";
+const basePath = "genshin/adachi-assets";
 const getMetaData = ( filename: string ) => bot.file.loadYAMLSync( `${ basePath }/meta/${ filename }`, "plugin" );
 
 export function getDomain(): OssDomain {
@@ -77,7 +77,7 @@ export async function getInfo( name: string ): Promise<InfoResponse | null> {
 	const typeList = [ "character", "weapon", "artifact" ];
 	for ( const type of typeList ) {
 		const filePath: string = `${ basePath }/${ type }/${ name }/data.json`;
-		const data = await bot.file.loadFile( filePath, "root" );
+		const data = await bot.file.loadFile( filePath, "plugin" );
 		if ( data ) {
 			return isJsonString( data ) ? JSON.parse( data ) : null
 		}
@@ -122,5 +122,5 @@ export function getWeaponList(): WeaponList {
 }
 
 export async function getCharacterGuide( name: string ) {
-	return await bot.file.loadFile( `${ basePath }/resource/guide/${ name }.png`, "root", "binary" );
+	return await bot.file.loadFile( `${ basePath }/resource/guide/${ name }.png`, "plugin", "binary" );
 }

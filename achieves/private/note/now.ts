@@ -26,7 +26,7 @@ async function getNowNote( userID: number ): Promise<Sendable[]> {
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
 		const res: RenderResult = await renderer.asSegment(
-			"/note", { uid }
+			"/note/index.html", { uid }
 		);
 		if ( res.code === "ok" ) {
 			imageList.push( res.data );

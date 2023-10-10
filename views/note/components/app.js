@@ -15,7 +15,6 @@ const template = `<div v-if="data" class="note">
 import { defineComponent, onMounted, ref } from "vue";
 import $https from "../../../front-utils/api.js";
 import { urlParamsGet } from "../../../front-utils/url.js";
-import moment from "moment";
 import NoteInfo from "./info.js";
 import NoteExpedition from "./expedition.js";
 

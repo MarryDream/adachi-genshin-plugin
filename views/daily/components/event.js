@@ -1,5 +1,3 @@
-import moment from "moment/moment";
-
 const template = `<div class="daily-event" :class="{ hidden: !showEvent }">
 	<div v-if="showEvent && showMaterial" class="title">
 		<common-title :data="{ title: '活动日历' }"/>
@@ -35,7 +33,6 @@ const template = `<div class="daily-event" :class="{ hidden: !showEvent }">
 
 import { defineComponent, computed } from "vue";
 import CommonTitle from "./common-title.js";
-import {DailyEvent} from "#/genshin/types/daily";
 
 export default defineComponent( {
 	name: "dailyEvent",

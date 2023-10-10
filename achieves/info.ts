@@ -18,7 +18,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		} else {
 			const route: string = checked( typeData.artifact.suitNames ) ? "/info-artifact" : "/info";
 			const res: RenderResult = await renderer.asSegment(
-				route,
+				route + "/index.html",
 				{ name: result.info, skill: isSkillPage }
 			);
 			if ( res.code === "ok" ) {

@@ -111,7 +111,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	}
 	
 	const res: RenderResult = await renderer.asSegment(
-		"/character", {
+		"/character/index.html", {
 			qq: userID,
 			showScore: config.showCharScore
 		} );

@@ -13,7 +13,7 @@ export default defineDirective( "order", async ({ sendMessage, messageData, redi
 		return;
 	}
 	const res: RenderResult = await renderer.asSegment(
-		"/artifact",
+		"/artifact/index.html",
 		{ qq: userID, type: "init" }
 	);
 	if ( res.code === "ok" ) {

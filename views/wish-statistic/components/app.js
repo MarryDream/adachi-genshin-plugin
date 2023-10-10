@@ -23,7 +23,7 @@ const template = `<div v-if="data" class="statistic-box">
 	<p class="author">Created by Adachi-BOT v{{ version }}</p>
 </div>`;
 
-import { defineComponent, onMounted, Ref, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import $https from "../../../front-utils/api.js";
 import { urlParamsGet } from "../../../front-utils/url.js";
 import { getFullDate } from "../../../front-utils/date.js";

@@ -44,7 +44,7 @@ export default defineDirective( "order", async ({ sendMessage, messageData, matc
 		}
 	}
 	
-	const res: RenderResult = await renderer.asSegment( "/ledger", { uid } );
+	const res: RenderResult = await renderer.asSegment( "/ledger/index.html", { uid } );
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );
 	} else {

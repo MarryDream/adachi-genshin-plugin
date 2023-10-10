@@ -58,7 +58,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 			name: nickname
 		} ) );
 		const res: RenderResult = await renderer.asSegment(
-			"/wish",
+			"/wish/index.html",
 			{ qq: userID }
 		);
 		if ( res.code === "ok" ) {
@@ -99,7 +99,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		nickname
 	} );
 	const res: RenderResult = await renderer.asSegment(
-		"/wish-statistic",
+		"/wish-statistic/index.html",
 		{ qq: userID }
 	);
 	if ( res.code === "ok" ) {

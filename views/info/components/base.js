@@ -1,12 +1,10 @@
-import {infoDataParser} from "#/genshin/front-utils/data-parser";
-
 const template = `<div class="info-base">
 	<header class="info-title">
 		<div v-if="elementIcon" class="element-box">
 			<img :src="elementIcon" alt="ERROR">
 		</div>
 		<p class="title-and-name">
-			「<span v-if="isCharacterInfo(data)">{{ data.fetter.title }}·</span>{{ data.name }}」
+			「<span v-if="data.type === '角色'">{{ data.fetter.title }}·</span>{{ data.name }}」
 		</p>
 		<img :src="parsed.rarityIcon" alt="ERROR" class="rarity-icon">
 	</header>
@@ -23,6 +21,7 @@ const template = `<div class="info-base">
 </div>`;
 
 import { defineComponent, computed } from "vue";
+import { infoDataParser } from "../../../front-utils/data-parser.js";
 
 export default defineComponent( {
 	name: "InfoApp",

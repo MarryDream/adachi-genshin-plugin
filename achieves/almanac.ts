@@ -4,7 +4,7 @@ import { almanacClass, renderer } from "../init";
 
 export default defineDirective( "order", async ({ sendMessage, redis, logger, auth, messageData }) => {
 	await redis.setString( "silvery-star.almanac", almanacClass.get() );
-	const res: RenderResult = await renderer.asSegment( "/almanac" );
+	const res: RenderResult = await renderer.asSegment( "/almanac/index.html" );
 	
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );
