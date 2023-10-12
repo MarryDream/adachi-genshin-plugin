@@ -9,7 +9,7 @@ const template = `<div class="info-base">
 		<img :src="parsed.rarityIcon" alt="ERROR" class="rarity-icon">
 	</header>
 	<main>
-		<div class="avatar-box" :class="{ weapon: data.type !== '角色' }">
+		<div class="avatar-box" :class="avatarClass">
 			<img :src="parsed.mainImage" alt="ERROR"/>
 			<p class="introduce">{{ data.fetter.introduce || '暂无介绍' }}</p>
 		</div>
@@ -42,6 +42,13 @@ export default defineComponent( {
 	setup( props ) {
 		const version = window.ADACHI_VERSION;
 		const parsed = computed( () => infoDataParser( props.data ) );
+		
+		const avatarClass = computed( () => {
+			if ( props.data.type === "角色" ) {
+				return "";
+			}
+			return props.data.weaponType?.id === "Catalyst" ? "weapon-catalyst" : "weapon-common";
+		} );
 
 		/* 元素 icon */
 		const elementIcon = computed( () => {
@@ -51,7 +58,8 @@ export default defineComponent( {
 		return {
 			parsed,
 			version,
-			elementIcon,
+			avatarClass,
+			elementIcon
 		}
 	}
 } );

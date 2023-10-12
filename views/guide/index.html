@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>guide</title>
+</head>
+<body>
+<img id="app" src="" alt="guide">
+<script>
+	const url = new URLSearchParams( location.search ).get( "url" );
+	document.querySelector( "#app" ).src = url;
+</script>
+</body>
+</html>

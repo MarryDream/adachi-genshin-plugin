@@ -9,7 +9,7 @@ import { Order } from "@/modules/command";
 import { Sendable } from "@/modules/lib";
 import { DailyMaterial } from "#/genshin/types/ossMeta";
 import { getDailyMaterial, getInfo } from "#/genshin/utils/meta";
-import { DailyInfo } from "@/web-console/types/daily";
+import { DailyInfo } from "@/web-console/backend/types/daily";
 import { getRandomNumber } from "@/utils/random";
 
 export type DailyDataMaterial = {

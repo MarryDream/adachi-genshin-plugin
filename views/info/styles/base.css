@@ -67,16 +67,13 @@
 	position: absolute;
 	top: 86px;
 	left: 50%;
+	display: flex;
+	justify-content: center;
 	padding: 45px;
 	width: 503px;
 	height: 498px;
 	box-sizing: border-box;
 	transform: translateX(-50%);
-}
-
-.info-base > main > .avatar-box.weapon {
-	top: 50%;
-	transform: translate(-50%, -50%);
 }
 
 .info-base > main > .avatar-box::before {
@@ -93,9 +90,16 @@
 
 .info-base > main > .avatar-box > img {
 	position: relative;
-	width: 413px;
-	height: 413px;
 	border-radius: 50%;
+}
+
+.info-base > main > .avatar-box.weapon-common > img {
+	transform: rotate(16deg);
+}
+
+.info-base > main > .avatar-box.weapon-catalyst > img {
+	transform: scale(40%);
+	border-radius: 0;
 }
 
 .info-base > main > .avatar-box > .introduce {

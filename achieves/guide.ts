@@ -1,9 +1,10 @@
 import { defineDirective } from "@/modules/command";
 import { getRealName, NameResult } from "#/genshin/utils/name";
-import { segment, Sendable } from "@/modules/lib";
-import { getCharacterGuide } from "#/genshin/utils/meta";
+import { Sendable } from "@/modules/lib";
+import { renderer, typeData } from "#/genshin/init";
+import { RenderResult } from "@/modules/renderer";
 
-export default defineDirective( "order", async ( { sendMessage, messageData } ) => {
+export default defineDirective( "order", async ( { file, sendMessage, messageData } ) => {
 	const name: string = messageData.raw_message;
 	const result: NameResult = getRealName( name );
 	
@@ -11,9 +12,18 @@ export default defineDirective( "order", async ( { sendMessage, messageData } ) 
 	
 	if ( result.definite ) {
 		/* 检查是否存在该攻略图 */
-		const data = await getCharacterGuide( <string>result.info );
-		if ( data ) {
-			message = segment.image( Buffer.from( data, "binary" ) );
+		const filePath = `genshin/adachi-assets/resource/guide/${ result.info }.webp`;
+		const isExist = await ( file.isExist( file.getFilePath( filePath, "plugin" ) ) );
+		if ( isExist ) {
+			const res: RenderResult = await renderer.asSegment(
+				"/guide/index.html",
+				{ url: "/" + filePath }
+			);
+			if ( res.code === "ok" ) {
+				message = res.data;
+			} else {
+				throw new Error( res.error );
+			}
 		} else {
 			message = `未查询到关于「${ result.info }」的攻略图，请等待西风驿站上传后再次查询，或前往 github.com/SilveryStar/Adachi-BOT 进行反馈`;
 		}
