@@ -25,10 +25,10 @@ export default defineComponent( {
 	},
 	setup( props ) {
 		const backgroundImage = computed( () => {
-			return `/genshin/adachi-assets/resource/home/${ props.data.name }.png`;
+			return `/genshin/adachi-assets/resource/home/${ props.data.name }.webp`;
 		} );
 		const lockIcon = computed( () => {
-			return "/genshin/adachi-assets/resource/common/icon/lock.png";
+			return "/genshin/adachi-assets/resource/common/icon/lock.webp";
 		} );
 		
 		return {

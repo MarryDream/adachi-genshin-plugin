@@ -63,8 +63,7 @@
 	box-sizing: border-box;
 }
 
-.overview .battle-data .data-list li:nth-of-type(4n + 1),
-.overview .battle-data .data-list li:nth-of-type(4n + 2) {
+.overview .battle-data .data-list li:is(:nth-of-type(4n + 1), :nth-of-type(4n + 2)) {
 	background-color: #1f1f48;
 }
 

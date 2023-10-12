@@ -35,7 +35,7 @@ export default defineComponent( {
 			formatData.push( {
 				...d,
 				label: dKey,
-				avatarIcon: `/genshin/adachi-assets/character/${ d.name }/image/face.png`,
+				avatarIcon: `/genshin/adachi-assets/character/${ d.name }/image/face.webp`,
 				className: `rarity-${ d.rarity }`
 			} );
 		}

@@ -65,32 +65,32 @@ export default defineComponent( {
 		
 		function getDataList( data ) {
 			const resin = {
-				icon: "/genshin/adachi-assets/resource/material/原粹树脂.png",
+				icon: "/genshin/adachi-assets/resource/material/原粹树脂.webp",
 				title: "原粹树脂",
 				subtitle: data.resinRecoveryTime !== "0" ? `预计将在 ${ getTimePoint( data.resinRecoveryTime ) } 全部恢复` : "原粹树脂已满",
 				value: `${ data.currentResin }/${ data.maxResin }`
 			};
 			const commission = {
-				icon: "/genshin/adachi-assets/resource/common/icon/Icon_Commission.png",
+				icon: "/genshin/adachi-assets/resource/common/icon/Icon_Commission.webp",
 				title: "每日委托任务",
 				subtitle: `「每日委托」奖励${ data.isExtraTaskRewardReceived ? "已" : "未" }领取`,
 				value: `${ data.finishedTaskNum }/${ data.totalTaskNum }`
 			};
 			const weekly = {
-				icon: "/genshin/adachi-assets/resource/common/icon/Emblem_Domains.png",
+				icon: "/genshin/adachi-assets/resource/common/icon/Emblem_Domains.webp",
 				title: "值得铭记的强敌",
 				subtitle: "本周已使用消耗减半次数",
 				value: `${ data.resinDiscountNumLimit - data.remainResinDiscountNum }/${ data.resinDiscountNumLimit }`
 			};
 			const homes = {
-				icon: "/genshin/adachi-assets/resource/material/尘歌壶.png",
+				icon: "/genshin/adachi-assets/resource/material/尘歌壶.webp",
 				title: "洞天财瓮 - 洞天宝钱",
 				subtitle: getHomeCoinSubtitle( data ),
 				value: getHomeCoinValue( data ),
 				miniFontSize: data.maxHomeCoin !== 0
 			};
 			const transformer = {
-				icon: "/genshin/adachi-assets/resource/material/参量质变仪.png",
+				icon: "/genshin/adachi-assets/resource/material/参量质变仪.webp",
 				title: "参量质变仪",
 				subtitle: getTransformerSubtitle( data ),
 				value: getTransformerValue( data )

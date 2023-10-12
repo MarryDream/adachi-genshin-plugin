@@ -61,7 +61,7 @@ export default defineComponent( {
 		
 		/* 获取头像 */
 		function getProImg( name ) {
-			return `/genshin/adachi-assets/character/${ name }/image/face.png`;
+			return `/genshin/adachi-assets/character/${ name }/image/face.webp`;
 		}
 		
 		const defaultAvatar = computed( () => {

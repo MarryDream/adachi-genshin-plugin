@@ -21,7 +21,7 @@ export default defineComponent( {
 	},
 	setup( props ) {
 		const icon = computed( () => {
-			return `/genshin/adachi-assets/resource/material/${ props.data.name }.png`;
+			return `/genshin/adachi-assets/resource/material/${ props.data.name }.webp`;
 		} );
 		
 		const title = computed( () => {
@@ -31,7 +31,7 @@ export default defineComponent( {
 		} );
 		
 		const itemStyle = computed( () => ( {
-			backgroundImage: `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ props.data.rank === 105 ? '5a' : props.data.rank }_Star.png)`
+			backgroundImage: `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ props.data.rank === 105 ? '5a' : props.data.rank }_Star.webp)`
 		} ) );
 		
 		return {

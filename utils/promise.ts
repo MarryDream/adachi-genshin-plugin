@@ -166,7 +166,7 @@ export async function characterInfoPromise(
 		);
 		const weapon: ApiType.CharacterWeapon = <any>{
 			...omit( char.weapon, [ "id", "type", "promoteLevel", "typeName" ] ),
-			image: `/genshin/adachi-assets/weapon/${ encodeURI( char.weapon.name ) }/image/thumb.png`
+			image: `/genshin/adachi-assets/weapon/${ encodeURI( char.weapon.name ) }/image/thumb.webp`
 		};
 		const artifacts: ApiType.CharacterArt = <any>char.reliquaries.map( el => {
 			return pick( el, [ "pos", "rarity", "icon", "level" ] );
@@ -198,7 +198,7 @@ export async function characterInfoPromise(
 			tmpSetBucket[id] = {
 				count: t?.count ? t.count + 1 : 1,
 				effect: t?.effect ?? pos.set.affixes,
-				icon: t?.icon ?? pos.icon.replace( /\d\.png/, "4.png" )
+				icon: t?.icon ?? pos.icon.replace( /\d\.webp/, "4.webp" )
 			};
 		}
 		const effects: ApiType.CharacterEffect = [];

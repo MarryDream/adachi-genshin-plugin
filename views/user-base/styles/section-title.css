@@ -15,7 +15,7 @@
 	content: "";
 	flex: 1;
 	margin: 10px 0;
-	background: url("https://adachi-bot.oss-cn-beijing.aliyuncs.com/images/card/card_title_line.png") no-repeat;
+	background: url("https://adachi-bot.oss-cn-beijing.aliyuncs.com/images/card/card_title_line.webp") no-repeat;
 	transform: rotateY(180deg);
 	overflow: hidden;
 }

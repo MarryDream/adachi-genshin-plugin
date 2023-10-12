@@ -8,7 +8,7 @@ const template = `<div class="character-box">
 		/>
 		<span v-if="char.activedConstellationNum" class="constellation">{{ char.activedConstellationNum }}</span>
 		<div v-if="char.name !== '旅行者'" class="fetter-box">
-			<img src="/genshin/adachi-assets/resource/common/icon/Item_Companionship_EXP.png"
+			<img src="/genshin/adachi-assets/resource/common/icon/Item_Companionship_EXP.webp"
 			     alt="ERROR"/>
 			<span>{{ char.fetter }}</span>
 			<span>{{ char.fetter }}</span>
@@ -54,16 +54,16 @@ export default defineComponent( {
 	setup() {
 		/* 针对埃洛伊处理 */
 		function getRarity( rarity ) {
-			return `/genshin/adachi-assets/resource/rarity/icon/Icon_${ rarity === 105 ? "5" : rarity }_Stars.png`;
+			return `/genshin/adachi-assets/resource/rarity/icon/Icon_${ rarity === 105 ? "5" : rarity }_Stars.webp`;
 		}
 		
 		function getRarityBg( rarity ) {
-			return `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity === 105 ? "5a" : rarity }_Star.png)`;
+			return `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity === 105 ? "5a" : rarity }_Star.webp)`;
 		}
 		
 		/* 获取属性图标 */
 		function getElementIcon( element ) {
-			return `/genshin/adachi-assets/resource/element/${ element.toLowerCase() }.png`;
+			return `/genshin/adachi-assets/resource/element/${ element.toLowerCase() }.webp`;
 		}
 		
 		return {

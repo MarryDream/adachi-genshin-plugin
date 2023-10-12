@@ -12,14 +12,12 @@
 	right: 0;
 	bottom: 0;
 	border: 40px solid;
-	border-image: url("/genshin/adachi-assets/resource/common/base-border.png") 55 fill;
-	background-image: url('/genshin/adachi-assets/resource/common/base-bg.png');
+	border-image: url("/genshin/adachi-assets/resource/common/base-border.webp") 55 fill;
+	background-image: url('/genshin/adachi-assets/resource/common/base-bg.webp');
 	filter: hue-rotate(var(--hue-rotate));
 }
 
-.info-artifact > header,
-.info-artifact > main,
-.info-artifact > footer {
+.info-artifact > :is(header, main, footer) {
 	position: relative;
 	margin: 0 -10px;
 }
@@ -60,7 +58,7 @@
 	top: 0;
 	right: 0;
 	bottom: 0;
-	background: url('/genshin/adachi-assets/resource/common/stand-bg.png') center no-repeat;
+	background: url('/genshin/adachi-assets/resource/common/stand-bg.webp') center no-repeat;
 	background-size: contain;
 	filter: hue-rotate(var(--hue-rotate));
 }

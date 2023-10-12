@@ -6,7 +6,7 @@ const template = `<div class="abyss-room" v-if="roomData">
 				v-for="item of roomData.maxStar"
 				:key="item"
 				:class="{'star-crush': item > roomData.star}"
-				src="/genshin/adachi-assets/resource/abyss/star.png" alt="ERROR"
+				src="/genshin/adachi-assets/resource/abyss/star.webp" alt="ERROR"
 			>
 		</template>
 	</SectionTitle>
@@ -18,7 +18,7 @@ const template = `<div class="abyss-room" v-if="roomData">
 				<template v-for="(char, index) in harf.avatars" :key="index">
 					<CharacterItem class="character-item" :char="char" type="level"/>
 					<img
-						src="/genshin/adachi-assets/resource/abyss/diamond.png"
+						src="/genshin/adachi-assets/resource/abyss/diamond.webp"
 						alt="ERROR"
 					/>
 				</template>

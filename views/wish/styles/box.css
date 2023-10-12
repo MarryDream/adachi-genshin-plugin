@@ -9,8 +9,7 @@
 	z-index: 0;
 }
 
-.wish-box .character,
-.wish-box .weapon {
+.wish-box :is(.character, .weapon) {
 	position: absolute;
 }
 
@@ -20,8 +19,7 @@
 	width: 82px;
 }
 
-.wish-box .type,
-.wish-box .rank {
+.wish-box :is(.type, .rank) {
 	position: relative;
 	z-index: 2;
 }

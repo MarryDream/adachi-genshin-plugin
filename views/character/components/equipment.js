@@ -22,7 +22,7 @@ export default defineComponent( {
 		}
 	},
 	setup( props ) {
-		const starImgSrc = computed( () => `/genshin/adachi-assets/resource/rarity/icon/Icon_${ props.rarity }_Stars.png` );
+		const starImgSrc = computed( () => `/genshin/adachi-assets/resource/rarity/icon/Icon_${ props.rarity }_Stars.webp` );
 		return {
 			starImgSrc
 		}

@@ -3,7 +3,7 @@ const template = `<div v-if="parsed && parsed.showData" class="overview">
 		<li>最深抵达： {{ data.maxFloor }}</li>
 		<li>挑战次数： {{ data.totalBattleTimes }}</li>
 		<li>
-			<img class="star-img" src="/genshin/adachi-assets/resource/abyss/star.png"
+			<img class="star-img" src="/genshin/adachi-assets/resource/abyss/star.webp"
 			     alt="ERROR"/>
 			<span class="star-num">{{ data.totalStar }}</span>
 		</li>

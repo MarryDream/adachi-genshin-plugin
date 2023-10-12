@@ -2,8 +2,7 @@
 	position: absolute;
 }
 
-.artifact .up,
-.artifact .down {
+.artifact :is(.up, .down) {
 	position: relative;
 }
 

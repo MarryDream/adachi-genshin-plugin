@@ -16,7 +16,7 @@
 	content: "";
 	flex: 1;
 	margin: 10px 0;
-	background: url("/genshin/adachi-assets/resource/abyss/abyss_title_line.png") no-repeat;
+	background: url("/genshin/adachi-assets/resource/abyss/abyss_title_line.webp") no-repeat;
 	transform: rotateY(180deg);
 	overflow: hidden;
 }

@@ -27,7 +27,7 @@ const template = `<div class="character-base">
 		<info-card title="套装效果" class="suit-list">
 			<template v-if="data?.effects.length">
 				<div v-for="(e, eKey) of data.effects" :key="eKey" class="suit-item">
-					<character-equipment :src="`/genshin/adachi-assets/artifact/${e.name}/image/${e.icon}.png`"/>
+					<character-equipment :src="`/genshin/adachi-assets/artifact/${e.name}/image/${e.icon}.webp`"/>
 					<p class="suit-info">
 						<span class="title">{{ e.name }}</span>
 						<span class="suit-type">{{ e.num }}件套</span>
@@ -68,7 +68,7 @@ const template = `<div class="character-base">
 					</div>
 					<div class="star-box">
 						<img v-for="s of data.weapon.rarity" :key="s"
-						     src="/genshin/adachi-assets/resource/rarity/icon/Icon_1_Stars.png"
+						     src="/genshin/adachi-assets/resource/rarity/icon/Icon_1_Stars.webp"
 						     alt="ERROR">
 					</div>
 				</div>
@@ -130,11 +130,11 @@ export default defineComponent( {
 
 		const elementIconSrc = computed( () => {
 			if ( !data.value ) return "";
-			return `/genshin/adachi-assets/resource/element/${ data.value.element.toLowerCase() }.png`;
+			return `/genshin/adachi-assets/resource/element/${ data.value.element.toLowerCase() }.webp`;
 		} );
 		const portrait = computed( () => {
 			if ( !data.value ) return "";
-			return `/genshin/adachi-assets/character/${ data.value.name }/image/gacha_splash.png`;
+			return `/genshin/adachi-assets/character/${ data.value.name }/image/gacha_splash.webp`;
 		} );
 
 		/* 武器描述处理 */

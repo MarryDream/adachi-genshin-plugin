@@ -1,6 +1,6 @@
 .abyss-base {
 	position: relative;
-	background: url("/genshin/adachi-assets/resource/abyss/top-background.jpg") top #13132b no-repeat;
+	background: url("/genshin/adachi-assets/resource/abyss/top-background.webp") top #13132b no-repeat;
 	background-size: contain;
 	overflow: hidden;
 }
@@ -13,7 +13,7 @@
 	right: 0;
 	bottom: 0;
 	border: 70px solid;
-	border-image-source: url("/genshin/adachi-assets/resource/card/card-base-bg.png");
+	border-image-source: url("/genshin/adachi-assets/resource/card/card-base-bg.webp");
 	border-image-slice: 70 fill;
 	filter: brightness(200%);
 	opacity: 0.6;

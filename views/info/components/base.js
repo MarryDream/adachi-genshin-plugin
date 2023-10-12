@@ -45,7 +45,7 @@ export default defineComponent( {
 
 		/* 元素 icon */
 		const elementIcon = computed( () => {
-			return props.data.type === "角色" ? `/genshin/adachi-assets/resource/element/${ props.data.element.id.toLowerCase() }.png` : "";
+			return props.data.type === "角色" ? `/genshin/adachi-assets/resource/element/${ props.data.element.id.toLowerCase() }.webp` : "";
 		} )
 		
 		return {

@@ -21,7 +21,7 @@ export default defineComponent( {
 		const getRarityBg = computed( () => {
 			if ( !props.char ) return "";
 			const rarity = props.char.rarity === 105 ? "5a" : props.char.rarity;
-			return `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity }_Star.png)`;
+			return `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity }_Star.webp)`;
 		} );
 		
 		const getStr = computed( () => {

@@ -46,40 +46,40 @@ export function cardDataParser( data ) {
 			value: stats.domainNumber
 		} ],
 		chest: [ {
-			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_1.png",
+			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_1.webp",
 			label: "普通宝箱",
 			value: stats.commonChestNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_2.png",
+			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_2.webp",
 			label: "精致宝箱",
 			value: stats.exquisiteChestNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_3.png",
+			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_3.webp",
 			label: "珍贵宝箱",
 			value: stats.preciousChestNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_4.png",
+			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_4.webp",
 			label: "华丽宝箱",
 			value: stats.luxuriousChestNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_5.png",
+			icon: "/genshin/adachi-assets/resource/chest/treasure_chest_5.webp",
 			label: "奇馈宝箱",
 			value: stats.magicChestNumber
 		} ],
 		culus: [ {
-			icon: "/genshin/adachi-assets/resource/material/散失的风神瞳.png",
+			icon: "/genshin/adachi-assets/resource/material/散失的风神瞳.webp",
 			label: "风神瞳数",
 			value: stats.anemoculusNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/material/散失的岩神瞳.png",
+			icon: "/genshin/adachi-assets/resource/material/散失的岩神瞳.webp",
 			label: "岩神瞳数",
 			value: stats.geoculusNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/material/散失的雷神瞳.png",
+			icon: "/genshin/adachi-assets/resource/material/散失的雷神瞳.webp",
 			label: "雷神瞳数",
 			value: stats.electroculusNumber
 		}, {
-			icon: "/genshin/adachi-assets/resource/material/散失的草神瞳.png",
+			icon: "/genshin/adachi-assets/resource/material/散失的草神瞳.webp",
 			label: "草神瞳数",
 			value: stats.dendroculusNumber
 		} ]
@@ -133,17 +133,17 @@ export function cardDataParser( data ) {
 
 export function infoDataParser( data ) {
 	/* 星级 icon */
-	const rarityIcon = `/genshin/adachi-assets/resource/info/icon/BaseStar${ data.type === "圣遗物" ? Math.max( ...data.levelList ) : data.rarity }.png`;
+	const rarityIcon = `/genshin/adachi-assets/resource/info/icon/BaseStar${ data.type === "圣遗物" ? Math.max( ...data.levelList ) : data.rarity }.webp`;
 	
 	const getMainImage = () => {
 		const baseURL = "/genshin/adachi-assets/";
 		if ( data.type === "角色" ) {
-			return baseURL + `character/${ data.name }/image/gacha_splash.png`;
+			return baseURL + `character/${ data.name }/image/gacha_splash.webp`;
 		}
 		if ( data.type === "武器" ) {
-			return baseURL + `weapon/${ data.name }/image/portrait.png`;
+			return baseURL + `weapon/${ data.name }/image/portrait.webp`;
 		}
-		return baseURL + `artifact/${ data.name }/image/${ data.icon }.png`;
+		return baseURL + `artifact/${ data.name }/image/${ data.icon }.webp`;
 	};
 	
 	const mainImage = getMainImage();

@@ -1,5 +1,5 @@
 const template = `<div class="artifact">
-	<img class="background" src="/genshin/adachi-assets/resource/artifact/background.png" alt="ERROR"/>
+	<img class="background" src="/genshin/adachi-assets/resource/artifact/background.webp" alt="ERROR"/>
 	<div class="up">
 		<p class="name">{{ data?.name }}</p>
 		<p class="slot">{{ data?.slot }}</p>
@@ -7,7 +7,7 @@ const template = `<div class="artifact">
 			<p class="property">{{ data?.mainStat.name }}</p>
 			<p class="value">{{ data?.mainStat.value }}</p>
 		</div>
-		<img class="rarity" src="/genshin/adachi-assets/resource/rarity/icon/Icon_5_Stars.png" alt="ERROR"/>
+		<img class="rarity" src="/genshin/adachi-assets/resource/rarity/icon/Icon_5_Stars.webp" alt="ERROR"/>
 		<img class="image" :src="icon" alt="ERROR"/>
 	</div>
 	<div class="down">
@@ -32,7 +32,7 @@ export default defineComponent( {
 		const icon = computed( () => {
 			const value = data.value;
 			if ( !value ) return "";
-			return `/genshin/adachi-assets/artifact/${ value.shirt }/image/${ value.icon }.png`;
+			return `/genshin/adachi-assets/artifact/${ value.shirt }/image/${ value.icon }.webp`;
 		} );
 		
 		async function getData() {

@@ -20,7 +20,7 @@ export default defineComponent( {
 		}
 	},
 	setup( props ) {
-		const backgroundImage = computed( () => `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ props.data.icon.rank }_Star.png)` );
+		const backgroundImage = computed( () => `url(/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ props.data.icon.rank }_Star.webp)` );
 
 		return {
 			backgroundImage

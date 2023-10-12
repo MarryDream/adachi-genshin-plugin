@@ -48,7 +48,7 @@ export default defineComponent( {
 	setup( props ) {
 		/* 获取图标 */
 		const pieceIcon = computed( () => {
-			return `/genshin/adachi-assets/resource/ledger/image/item_${ props.type }.png`
+			return `/genshin/adachi-assets/resource/ledger/image/item_${ props.type }.webp`
 		} );
 		
 		const prevLabel = computed( () => {

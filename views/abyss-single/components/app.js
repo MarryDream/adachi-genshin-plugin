@@ -10,7 +10,7 @@ const template = `<div class="abyss-single">
 			</div>
 			<ul class="tag-list">
 				<li>
-					<img src="/genshin/adachi-assets/resource/abyss/star.png" alt="ERROR">
+					<img src="/genshin/adachi-assets/resource/abyss/star.webp" alt="ERROR">
 					<span>{{ data && data.totalStar }}</span>
 				</li>
 				<li>

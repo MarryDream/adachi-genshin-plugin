@@ -67,18 +67,18 @@ export default defineComponent( {
 		} )
 
 		/* 获取标题材料icon */
-		const getIcon = ( name ) => `/genshin/adachi-assets/resource/material/${ name }.png`;
+		const getIcon = ( name ) => `/genshin/adachi-assets/resource/material/${ name }.webp`;
 		/* 获取头像 */
 		const getThumb = ( type, name ) => {
 			const baseUrl = "/genshin/adachi-assets";
-			if ( type === "character" ) return `${ baseUrl }/character/${ name }/image/face.png`;
-			return `${ baseUrl }/weapon/${ name }/image/thumb.png`;
+			if ( type === "character" ) return `${ baseUrl }/character/${ name }/image/face.webp`;
+			return `${ baseUrl }/weapon/${ name }/image/thumb.webp`;
 		}
 
 		/* 获取背景图 */
 		const getThumbBg = ( rarity ) => {
 			return {
-				backgroundImage: `url('/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity }_Star.png')`,
+				backgroundImage: `url('/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity }_Star.webp')`,
 				backgroundSize: "cover"
 			}
 		}

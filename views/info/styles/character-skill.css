@@ -8,8 +8,7 @@
 	width: 400px;
 }
 
-.character-skill > .info-card.skill-card > .card-content,
-.character-skill > .info-card.burst-card > .card-content {
+.character-skill > .info-card:is(.skill-card, .burst-card) > .card-content {
 	padding: 20px;
 	height: 100%;
 	min-height: 415px;

@@ -17,7 +17,7 @@ export default defineComponent( {
 	},
 	template,
 	setup() {
-		const getSideIcon = name => `/genshin/adachi-assets/character/${ name }/image/side.png`;
+		const getSideIcon = name => `/genshin/adachi-assets/character/${ name }/image/side.webp`;
 		return {
 			getSideIcon
 		};

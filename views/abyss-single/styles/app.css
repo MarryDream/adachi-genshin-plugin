@@ -8,7 +8,7 @@ ul {
 }
 
 .abyss-single {
-	background: url("/genshin/adachi-assets/resource/abyss/top-background.jpg") top center #131425 no-repeat;
+	background: url("/genshin/adachi-assets/resource/abyss/top-background.webp") top center #131425 no-repeat;
 	background-size: contain;
 	overflow: hidden;
 	line-height: 1;

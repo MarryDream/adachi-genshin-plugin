@@ -41,7 +41,7 @@
 	padding: 40px 16px 0;
 	border-style: solid;
 	border-width: 0 70px 70px 70px;
-	border-image: url("/genshin/adachi-assets/resource/card/card-base-bg.png") 70 fill;
+	border-image: url("/genshin/adachi-assets/resource/card/card-base-bg.webp") 70 fill;
 }
 
 /* 用户信息页 */

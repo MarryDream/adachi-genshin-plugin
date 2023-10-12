@@ -122,5 +122,5 @@ export function getWeaponList(): WeaponList {
 }
 
 export async function getCharacterGuide( name: string ) {
-	return await bot.file.loadFile( `${ basePath }/resource/guide/${ name }.png`, "plugin", "binary" );
+	return await bot.file.loadFile( `${ basePath }/resource/guide/${ name }.webp`, "plugin", "binary" );
 }

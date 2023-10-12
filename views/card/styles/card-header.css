@@ -5,7 +5,7 @@
 	align-items: flex-end;
 	padding: 80px 80px 50px;
 	border-radius: 24px 24px 0 0;
-	background: url("/genshin/adachi-assets/resource/card/user-top-bg.jpg") center no-repeat;
+	background: url("/genshin/adachi-assets/resource/card/user-top-bg.webp") center no-repeat;
 	background-size: cover;
 }
 
@@ -28,7 +28,7 @@
 .header-base::after {
 	border-style: solid;
 	border-width: 70px 70px 0;
-	border-image: url("/genshin/adachi-assets/resource/card/card-base-bg.png") 70 fill;
+	border-image: url("/genshin/adachi-assets/resource/card/card-base-bg.webp") 70 fill;
 }
 
 .header-base > div {

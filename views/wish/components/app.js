@@ -1,5 +1,5 @@
 const template = `<div v-if="data" class="wish">
-	<img class="background" src="/genshin/adachi-assets/resource/wish/background.png" alt="ERROR"/>
+	<img class="background" src="/genshin/adachi-assets/resource/wish/background.webp" alt="ERROR"/>
 	<p class="time">@{{ data.nickname }} at {{ fullDate }}</p>
 	<div class="wish-list">
 		<WishBox v-for="d in data.result" :d="d"></WishBox>

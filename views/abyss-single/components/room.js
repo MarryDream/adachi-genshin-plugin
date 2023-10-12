@@ -15,7 +15,7 @@ const template = `<div class="room">
 			</ul>
 			<div class="star-box">
 				<img v-for="(s, sKey) of data.maxStar" :key="sKey" :class="{'star-crush': s > data.star}"
-				     src="/genshin/adachi-assets/resource/abyss/star.png" alt="ERROR"/>
+				     src="/genshin/adachi-assets/resource/abyss/star.webp" alt="ERROR"/>
 			</div>
 		</template>
 		<p v-else class="empty-massage">暂无挑战数据</p>
@@ -48,7 +48,7 @@ export default defineComponent( {
 		} );
 		
 		/* 获取角色小头 */
-		const getSideIcon = name => `/genshin/adachi-assets/character/${ name }/image/side.png`;
+		const getSideIcon = name => `/genshin/adachi-assets/character/${ name }/image/side.webp`;
 		
 		return {
 			isEmpty,

@@ -36,18 +36,18 @@ export default defineComponent( {
 		}
 		
 		const boxBackground = computed( () => {
-			return `/genshin/adachi-assets/resource/wish/${ toString( props.d.rank ) }Background.png`;
+			return `/genshin/adachi-assets/resource/wish/${ toString( props.d.rank ) }Background.webp`;
 		} );
 		const mainImage = computed( () => {
 			const type = props.d.type === "武器" ? "weapon" : "character";
-			return `/genshin/adachi-assets/${ type }/${ props.d.name }/image/gacha_card.png`;
+			return `/genshin/adachi-assets/${ type }/${ props.d.name }/image/gacha_card.webp`;
 		} );
 		const typeIcon = computed( () => {
 			const type = props.d.type === "武器" ? "type" : "element";
-			return `/genshin/adachi-assets/resource/${ type }/${ props.d.el.toLowerCase() }.png`;
+			return `/genshin/adachi-assets/resource/${ type }/${ props.d.el.toLowerCase() }.webp`;
 		} );
 		const rankIcon = computed( () => {
-			return `/genshin/adachi-assets/resource/wish/${ toString( props.d.rank ) }Star.png`;
+			return `/genshin/adachi-assets/resource/wish/${ toString( props.d.rank ) }Star.webp`;
 		} );
 		
 		return {
