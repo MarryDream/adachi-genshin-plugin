@@ -10,7 +10,8 @@ function subscribe(): string {
 		"这可能会导致你的账号出现安全风险，请务必确保 BOT 持有者可信\n" +
 		`如果确定开启该功能，发送「cookie」来继续\n` +
 		"你可以在 https://docs.adachi.top/faq 中查看获取 cookie 的方法\n" +
-		"这需要在 3 分钟内进行，此后将会自动取消本次申请";
+		"这需要在 3 分钟内进行，此后将会自动取消本次申请\n" +
+		"如需手动取消申请，请输入 exit";
 }
 
 async function confirm( userID: number, rawCookie: string ): Promise<string> {
@@ -28,13 +29,18 @@ export default defineDirective( "enquire", async ( { sendMessage, messageData, m
 	}
 	
 	if ( matchResult.status === "confirm" ) {
+		const addText: string = "，如需取消私人服务申请，请输入 exit";
 		const data = messageData.raw_message;
+		if ( data === "exit" ) {
+			await sendMessage( "已取消私人服务申请" );
+			return true;
+		}
 		try {
 			const msg: string = await confirm( userID, data );
 			await sendMessage( msg );
 		} catch ( error: any ) {
 			if ( typeof error === "string" ) {
-				await sendMessage( error );
+				await sendMessage( error + addText );
 				return false;
 			}
 			throw error;

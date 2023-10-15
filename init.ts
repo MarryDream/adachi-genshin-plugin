@@ -53,7 +53,6 @@ export default definePlugin( {
 	assets: {
 		manifestUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com/adachi-bot/version3/genshin_assets_manifest.yml",
 		downloadBaseUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com",
-		overflowPrompt: "更新文件数量超过阈值，请手动前往 https://github.com/SilveryStar/Adachi-BOT/release 更新资源包",
 		replacePath: path => {
 			return path.replace( "adachi-bot/version3/genshin/", "" );
 		}

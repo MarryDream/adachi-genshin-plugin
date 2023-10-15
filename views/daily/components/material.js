@@ -5,15 +5,14 @@ const template = `<section class="material">
 				<template v-if="m[type]">
 					<div class="title">
 						<common-title :data="getTitleInfo(m[type].material)"/>
-						<!--							<div class="title-icons">-->
-						<!--								<img v-for="(a, aKey) of m[type].material" :key="aKey" :src="getIcon(a)" alt="ERROR">-->
-						<!--							</div>-->
 					</div>
 					<div class="br"></div>
 					<div class="thumb-list">
-						<div v-for="(t, tKey) of m[type].units" :key="tKey" class="thumb-box"
-						     :style="getThumbBg(t.rarity)">
-							<img :src="getThumb(type, t.name)" alt="ERROR">
+						<div v-for="(t, tKey) of getUnitList( m[type].units, type )" :key="tKey" class="thumb-box" :style="getThumbBg(t.rarity)">
+							<div v-if="type === 'character'" class="thumb-element">
+								<img v-for="( element, elementKey ) of t.element" :key="elementKey" :src="element" alt="ERROR">
+							</div>
+							<img class="thumb-avatar" :src="getThumb(type, t.icon || t.name)" alt="ERROR">
 							<p>{{ t.name }}</p>
 						</div>
 					</div>
@@ -67,7 +66,7 @@ export default defineComponent( {
 		} )
 
 		/* 获取标题材料icon */
-		const getIcon = ( name ) => `/genshin/adachi-assets/resource/material/${ name }.webp`;
+		const getIcon = name => `/genshin/adachi-assets/resource/material/${ name }.webp`;
 		/* 获取头像 */
 		const getThumb = ( type, name ) => {
 			const baseUrl = "/genshin/adachi-assets";
@@ -76,11 +75,16 @@ export default defineComponent( {
 		}
 
 		/* 获取背景图 */
-		const getThumbBg = ( rarity ) => {
+		const getThumbBg = rarity => {
 			return {
 				backgroundImage: `url('/genshin/adachi-assets/resource/rarity/bg/Background_Item_${ rarity }_Star.webp')`,
 				backgroundSize: "cover"
 			}
+		}
+		
+		/* 获取元素图标 */
+		const getElementIcon = id => {
+			return `/genshin/adachi-assets/resource/element/${ id.toLowerCase() }.webp`;
 		}
 
 		const getTitleInfo = ( { name, rank } ) => {
@@ -95,12 +99,56 @@ export default defineComponent( {
 			};
 		}
 		
+		const getUnitList = ( list, type ) => {
+			if ( !list ) {
+				return [];
+			}
+			if ( type !== "character" ) {
+				return list;
+			}
+			const result = [];
+			/* 处理重复的旅行者项 */
+			let travelerIndex = -1; // 旅行者项的待插入位置
+			const travelerList = [];
+			list.forEach( ( avatar, sortIndex ) => {
+				const id = avatar.id;
+				if ( typeof id === "string" ) {
+					if ( travelerIndex === -1 ) {
+						travelerIndex = sortIndex;
+					}
+					/* 只保存妹妹（男主：？） */
+					if ( id.startsWith( "10000007" ) ) {
+						travelerList.push( avatar );
+					}
+				} else {
+					result.push( {
+						...avatar,
+						element: [ getElementIcon( avatar.element.id ) ]
+					} );
+				}
+			} );
+
+			if ( travelerList.length ) {
+				const traveler = travelerList[0];
+				result.splice( travelerIndex, 0, {
+					...traveler,
+					id: 10000007,
+					icon: "荧-风",
+					name: "旅行者",
+					element: travelerList.map( t => getElementIcon( t.element.id ) )
+				} );
+			}
+			console.log( result );
+			return result;
+		}
+		
 		return {
 			materialList,
 			getIcon,
 			getThumb,
 			getThumbBg,
-			getTitleInfo
+			getTitleInfo,
+			getUnitList
 		}
 	}
 } )

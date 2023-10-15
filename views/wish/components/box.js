@@ -1,10 +1,10 @@
 const template = `<div class="wish-box">
 	<img class="box-background" :src="boxBackground" alt="ERROR"/>
 	<div class="character" v-if="d.type === '角色'">
-		<img class="type" :src="typeIcon" alt="ERROR"/>
 		<img class="main" :src="mainImage" alt="ERROR"/>
+		<img class="type" :src="typeIcon" alt="ERROR"/>
 	</div>
-	<div class="weapon" v-else>
+	<div class="weapon" :class="[d.el.toLowerCase(), d.name]" v-else>
 		<img class="main" :src="mainImage" alt="ERROR"/>
 		<img class="main shadow" :src="mainImage" alt="ERROR"/>
 		<img class="type" :src="typeIcon" alt="ERROR"/>
@@ -24,6 +24,7 @@ export default defineComponent( {
 		d: Object
 	},
 	setup( props ) {
+		console.log( props.d )
 		function toString( num ) {
 			switch ( num ) {
 				case 5:
@@ -39,8 +40,10 @@ export default defineComponent( {
 			return `/genshin/adachi-assets/resource/wish/${ toString( props.d.rank ) }Background.webp`;
 		} );
 		const mainImage = computed( () => {
-			const type = props.d.type === "武器" ? "weapon" : "character";
-			return `/genshin/adachi-assets/${ type }/${ props.d.name }/image/gacha_card.webp`;
+			if ( props.d.type === "武器" ) {
+				return `/genshin/adachi-assets/weapon/${ props.d.name }/image/portrait.webp`
+			}
+			return `/genshin/adachi-assets/character/${ props.d.name }/image/gacha_card.webp`;
 		} );
 		const typeIcon = computed( () => {
 			const type = props.d.type === "武器" ? "type" : "element";

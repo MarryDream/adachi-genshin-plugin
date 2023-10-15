@@ -1,16 +1,20 @@
 .wish-box {
 	position: relative;
 	width: 86px;
+	height: 518px;
 }
 
 .wish-box .box-background {
-	position: absolute;
-	width: 86px;
-	z-index: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .wish-box :is(.character, .weapon) {
 	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
 }
 
 .wish-box .main {
@@ -19,51 +23,44 @@
 	width: 82px;
 }
 
-.wish-box :is(.type, .rank) {
-	position: relative;
+.wish-box :is(.type, .main, .rank) {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
 	z-index: 2;
 }
 
 .wish-box .rank {
-	position: relative;
 	width: 61px;
-	left: 13px;
-	top: 393px;
+	top: 396px;
 }
 
 .character .type {
 	width: 44px;
-	left: 21px;
-	top: 336px;
+	top: 344px;
 }
 
 .character .main {
-	position: absolute;
 	top: 76px;
 	height: 363px;
-	left: 0.04cm;
 }
 
 .weapon .main {
-	position: relative;
-	top: 141px;
+	top: 98px;
 	z-index: 1;
 }
 
 .weapon .shadow {
-	position: relative;
-	top: -93px;
-	left: 3px;
+	margin-left: 3px;
+	transform: translate(-50%, 8px);
 	filter: brightness(0%);
 	opacity: 0.72;
 	z-index: 0;
 }
 
 .weapon .type {
-	position: absolute;
 	width: 56px;
-	left: 14px;
-	top: 328px;
+	top: 334px;
 }
 
 .wish-box .times {
@@ -75,4 +72,23 @@
 	color: rgb(220, 220, 220);
 	background-color: rgba(64, 64, 64, 0.3);
 	text-align: center;
+}
+
+/* 区分武器种样式 */
+.weapon .main {
+	top: 140px;
+	width: 80%;
+	height: 240px;
+	object-fit: contain;
+}
+
+/*!* 特殊情况特殊对待（你都爬了些什么东西啊） *!*/
+.weapon.祭礼剑 .main {
+	top: 132px;
+	transform: translateX(-50%) scale(2.7);
+}
+.weapon.讨龙英杰谭 .main {
+	top: 190px;
+	left: 17px;
+	width: 140%;
 }

@@ -98,14 +98,13 @@ export class ArtClass {
 		this.values = data.data.values;
 	}
 	
-	private getID( domainID: number = -1 ): Promise<number | string> {
+	private getIds( domainID: number = -1 ): Promise<Array<number | string>> {
 		return new Promise( ( resolve, reject ) => {
 			if ( domainID === -1 ) {
 				const artifactIds: string[] = Object.keys( this.suits );
-				const domainNum: number = getRandomNumber( 0, artifactIds.length - 1 );
-				resolve( Number.parseInt( artifactIds[domainNum] ) );
+				resolve( Object.keys( this.suits ) );
 			} else if ( domainID < this.domains.length ) {
-				resolve( this.domains[domainID].artifact[getRandomNumber( 0, 1 )] );
+				resolve( this.domains[domainID].artifact );
 			} else {
 				reject( "未知的秘境ID" );
 			}
@@ -170,9 +169,18 @@ export class ArtClass {
 	}
 	
 	private getResult(
-		id: number, slot: number, started: number,
+		ids: Array<number | string>, slot: number, started: number,
 		main: number, sub: Property[], improves: any[]
 	): ArtifactRouter[] {
+		// 获取最高等级为五星的圣遗物 id 数组
+		const effectiveIds = ids.filter( id => {
+			const info = this.suits[id];
+			return info.levelList.includes( 5 );
+		} );
+		
+		const domainNum: number = getRandomNumber( 0, effectiveIds.length - 1 );
+		const id = Number.parseInt( <string>effectiveIds[domainNum] );
+		
 		const par: ArtifactRouter = {
 			name: this.suits[id].suit[slot],
 			icon: slot.toString(),
@@ -228,7 +236,7 @@ export class ArtClass {
 	public async get( userID: number, domain: number, redis: Database ): Promise<string> {
 		let flag: string = "";
 		try {
-			const artifactID = <number>await this.getID( domain );
+			const artifactIDs = await this.getIds( domain );
 			const slot: number = this.getSlot();
 			const mainStat: number = this.getMainStat( slot );
 			const subStats: Property[] = this.getSubStats( slot, mainStat );
@@ -236,7 +244,7 @@ export class ArtClass {
 			const improves: any[] = this.getImproves();
 			
 			const [ initProp, reinProp ] = this.getResult(
-				artifactID, slot, started, mainStat, subStats, improves
+				artifactIDs, slot, started, mainStat, subStats, improves
 			);
 			
 			await redis.setString(
