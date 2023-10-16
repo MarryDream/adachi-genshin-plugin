@@ -1,5 +1,3 @@
-import { scheduleJob } from "node-schedule";
-import { OssArtifact } from "#/genshin/types/ossMeta";
 import { getArtifact } from "#/genshin/utils/meta";
 import { characterMap, weaponMap } from "#/genshin/init";
 
@@ -23,17 +21,16 @@ export interface WeaponList {
 }
 
 export class TypeData {
-	public weapon = this.getWeaponList();
-	public character = this.getCharacterList();
-	public artifact = this.formatArtifact();
+	public get weapon() {
+		return this.getWeaponList();
+	}
 	
-	constructor() {
-		
-		scheduleJob( "0 0 0 * * *", async () => {
-			this.weapon = this.getWeaponList();
-			this.character = this.getCharacterList();
-			this.artifact = this.formatArtifact();
-		} );
+	public get character() {
+		return this.getCharacterList();
+	}
+	
+	public get artifact() {
+		return this.formatArtifact();
 	}
 	
 	private getCharacterList() {

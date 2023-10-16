@@ -17,9 +17,7 @@ export default defineDirective( "switch", async ( { sendMessage, matchResult, re
 			return;
 		}
 		
-		aliasClass.addPair( alias, name );
-		await redis.addListElement( `silvery-star.alias-add-${ name }`, alias );
-		await redis.delListElement( `silvery-star.alias-remove`, alias );
+		await aliasClass.addPair( alias, name );
 	} else if ( !matchResult.isOn ) {
 		const removed: string[] = await redis.getList( "silvery-star.alias-remove" );
 		if ( removed.some( el => el === alias ) ) {
@@ -27,9 +25,7 @@ export default defineDirective( "switch", async ( { sendMessage, matchResult, re
 			return;
 		}
 		
-		aliasClass.removeAlias( alias );
-		await redis.addListElement( `silvery-star.alias-remove`, alias );
-		await redis.delListElement( `silvery-star.alias-add-${ name }`, alias );
+		await aliasClass.removeAlias( alias, name );
 	}
 	
 	await sendMessage( `别名${ matchResult.isOn ? "添加" : "删除" }成功` );

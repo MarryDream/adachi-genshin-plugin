@@ -1,15 +1,10 @@
-import { scheduleJob } from "node-schedule";
 import { getCharacterList } from "#/genshin/utils/meta";
 import { CharacterList } from "#/genshin/module/type";
 
 export class CharacterMap {
-	public map = this.getList();
-	
-	constructor() {
-		scheduleJob( "0 0 0 * * *", async () => {
-			this.map = this.getList();
-		} );
-	}
+	public get map() {
+		return this.getList();
+	};
 	
 	private getList(): CharacterList {
 		const data = getCharacterList();

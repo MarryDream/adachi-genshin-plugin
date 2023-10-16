@@ -74,7 +74,6 @@ async function getRenderResult( id: number, subState: boolean, week?: number ): 
 }
 
 export class DailyClass {
-	private detail: DailyMaterial = getDailyMaterial();
 	private allData: DailyDataMaterial = { "Mon&Thu": [], "Tue&Fri": [], "Wed&Sat": [] };
 	private eventData: CalendarData[] = [];
 	
@@ -89,10 +88,6 @@ export class DailyClass {
 		
 		scheduleJob( "0 2 16 * * *", async () => {
 			this.eventData = await calendarPromise();
-		} );
-		
-		scheduleJob( "0 0 0 * * *", async () => {
-			this.detail = getDailyMaterial();
 		} );
 		
 		scheduleJob( "0 0 6 * * *", async () => {
@@ -145,6 +140,10 @@ export class DailyClass {
 				} );
 			}
 		} );
+	}
+	
+	public get detail() {
+		return getDailyMaterial();
 	}
 	
 	private static getDateStr( week: number ): string | null {
