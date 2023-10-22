@@ -13,6 +13,7 @@ function getQueryParam( data: any ): string {
 }
 
 export function getDS( query: any, body: string = "" ): string {
+	// 4X salt
 	const n: string = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs";
 	const i: number = Date.now() / 1000 | 0;
 	const r: string = getRandomString( 6 );
@@ -23,7 +24,8 @@ export function getDS( query: any, body: string = "" ): string {
 }
 
 export function getDS2(): string {
-	const n: string = "9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7";
+	// 6X salt
+	const n: string = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v";
 	const i: number = Date.now() / 1000 | 0;
 	const r: string = getRandomString( 6 );
 	const c: string = Md5.init( `salt=${ n }&t=${ i }&r=${ r }` );
@@ -32,6 +34,7 @@ export function getDS2(): string {
 }
 
 export function generateDS(): string {
+	// K2 salt
 	const n: string = "dWCcD2FsOUXEstC5f9xubswZxEeoBOTc";
 	const i: number = Date.now() / 1000 | 0;
 	const r: string = getRandomString( 6 ).toLowerCase();

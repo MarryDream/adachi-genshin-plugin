@@ -8,7 +8,9 @@ import {
 import * as ApiType from "#/genshin/types";
 import { config } from "#/genshin/init";
 import { register } from "@/utils/request";
-import { getRandomString, randomSleep } from "@/utils/random";
+import { getMiHoYoRandomStr } from "./random";
+import { getRandomString, getRandomNumber, randomSleep } from "@/utils/random";
+import { accelerometer, batteryStatus, deviceFp, magnetometer } from "./device-fp";
 
 const apis = {
 	FETCH_ROLE_ID: "https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard",
@@ -34,16 +36,23 @@ const apis = {
 	FETCH_GET_MULTI_TOKEN: "https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket",
 	FETCH_GET_COOKIE_TOKEN: "https://api-takumi.mihoyo.com/auth/api/getCookieAccountInfoBySToken",
 	FETCH_VERIFY_LTOKEN: "https://passport-api-v4.mihoyo.com/account/ma-cn-session/web/verifyLtoken",
-	FETCH_GET_LTOKEN_BY_STOKEN: "https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken"
+	FETCH_GET_LTOKEN_BY_STOKEN: "https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken",
+	/* 获取device_fp */
+	FETCH_GET_DEVICE_FP: "https://public-data-api.mihoyo.com/device-fp/api/getFp"
 };
 
 const HEADERS = {
 	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.29.1",
 	"Referer": "https://webstatic.mihoyo.com/",
+	"Origin": 'https://webstatic.mihoyo.com',
+	"X_Requested_With": 'com.mihoyo.hyperion',
 	"x-rpc-app_version": "2.29.1",
 	"x-rpc-client_type": 5,
 	"DS": "",
-	"Cookie": ""
+	"Cookie": "",
+	"x-rpc-device_id": "",
+	"x-rpc-device_fp": "",
+	"x-rpc-app_id": "bll8iq97cem8"
 };
 
 const verifyMsg = "API请求遭遇验证码拦截，可以尝试联系Master开启验证服务";
@@ -159,11 +168,14 @@ export async function getDailyNoteInfo(
 		role_id: uid,
 		server
 	};
+	const [ device_id, device_fp ] = await getDeviceFp( `${ uid }`, cookie );
 	const { data: result } = await $https.FETCH_ROLE_DAILY_NOTE.get( query, {
 		headers: {
 			...HEADERS,
 			DS: getDS( query ),
-			Cookie: cookie
+			"Cookie": cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} )
 	const data: ResponseBody<ApiType.Note> = toCamelCase( result );
@@ -259,13 +271,19 @@ export async function getLedger(
 		bind_region: server,
 		month: mon
 	};
+	
+	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
+	console.log( cookie )
 	const { data: result } = await $https.FETCH_LEDGER.get( query, {
 		headers: {
 			...HEADERS,
-			Cookie: cookie
+			Cookie: cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	const data: ResponseBody<ApiType.Ledger> = toCamelCase( result );
+	console.log( data )
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
@@ -326,18 +344,13 @@ const SIGN_HEADERS = {
 	"Referer": "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html" +
 		`?bbs_auth_required=true&act_id=${ activityID }&utm_source=bbs&utm_medium=mys&utm_campaign=icon`,
 	"Accept": "application/json, text/plain, */*",
-	"Accept-Encoding": "gzip, deflate",
-	"Accept-Language": "zh-CN,en-US;q=0.8",
 	"Origin": "https://webstatic.mihoyo.com",
 	"X-Requested-With": "com.mihoyo.hyperion",
 	"x-rpc-app_version": "2.34.1",
 	"x-rpc-client_type": 5,
-	"x-rpc-platform": "ios",
-	"x-rpc-device_model": "iPhone7,1",
-	"x-rpc-device_name": "aaaaa",
-	"x-rpc-channel": "appstore",
-	"x-rpc-sys_version": "12.4.1",
-	"x-rpc-device_id": guid(),
+	"x-rpc-app_id": "bll8iq97cem8",
+	"x-rpc-device_id": "",
+	"x-rpc-device_fp": "",
 	"DS": ""
 };
 
@@ -348,12 +361,15 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 		uid, region
 	};
 	
+	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
 		headers: {
 			...SIGN_HEADERS,
 			"content-type": "application/json",
 			Cookie: cookie,
-			DS: getDS2()
+			"DS": getDS2(),
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	const resp: ResponseBody<ApiType.SignInResult> = toCamelCase( result );
@@ -374,10 +390,14 @@ export async function getSignInInfo( uid: string, region: string, cookie: string
 		act_id: activityID,
 		region, uid
 	};
+	
+	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_INFO.get( query, {
 		headers: {
 			...SIGN_HEADERS,
-			Cookie: cookie
+			Cookie: cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	if ( !result.data ) {
@@ -469,6 +489,7 @@ export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie
 		throw `[verify] 验证失败 ${ typeof verifyCode === 'string' ? "\n" + verifyCode : verifyCode.info }`;
 	}
 	
+	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
 		headers: {
 			...SIGN_HEADERS,
@@ -477,7 +498,9 @@ export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie
 			DS: getDS2(),
 			"x-rpc-challenge": verifyCode.data.challenge,
 			"x-rpc-validate": verifyCode.data.validate,
-			"x-rpc-seccode": `${ verifyCode.data.validate }|jordan`
+			"x-rpc-seccode": `${ verifyCode.data.validate }|jordan`,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	
@@ -581,4 +604,70 @@ export async function getLTokenBySToken( stoken: string, mid: string ): Promise<
 	}
 	return toCamelCase( result );
 	
+}
+
+async function getDeviceFp( uid: string, cookie: string ): Promise<string[]> {
+	const key = `adachi.miHoYo-info.${ uid }`;
+	const { device_fp, device_id, idfv, seed_id, seed_time } = await bot.redis.getHash( key );
+	const status = batteryStatus();
+	const IDFV = idfv || guid().toUpperCase();
+	const deviceId = device_id || guid();
+	const seedId = seed_id || getMiHoYoRandomStr( 13 );
+	const seedTime = seed_time || `${ Date.now() }`;
+	
+	// platform=1 的拓展字段
+	const ext_fields = {
+		IDFV: IDFV,
+		model: 'iPhone16,1',
+		osVersion: '17.0.3',
+		screenSize: '393×852',
+		vendor: '--',
+		cpuType: 'CPU_TYPE_ARM64',
+		cpuCores: '16',
+		isJailBreak: '0',
+		networkType: 'WIFI',
+		proxyStatus: '0',
+		batteryStatus: status.toString( 10 ),
+		chargeStatus: status > 30 ? '0' : '1',
+		romCapacity: `${ getRandomNumber( 100000, 500000 ) }`,
+		romRemain: `${ getRandomNumber( 120000, 130000 ) }`,
+		ramCapacity: `${ getRandomNumber( 1000, 10000 ) }`,
+		ramRemain: `${ getRandomNumber( 8000, 9000 ) }`,
+		appMemory: `${ getRandomNumber( 50, 110 ) }`,
+		accelerometer: accelerometer().join( 'x' ),
+		gyroscope: accelerometer().join( 'x' ),
+		magnetometer: magnetometer().join( 'x' )
+	};
+	const { data: response } = await $https.FETCH_GET_DEVICE_FP.post( {
+		seed_id: seedId,
+		device_id: deviceId,
+		platform: '1',
+		seed_time: seedTime,
+		ext_fields: JSON.stringify( ext_fields ),
+		app_name: 'bbs_cn',
+		device_fp: device_fp || deviceFp()
+	}, {
+		headers: {
+			...HEADERS,
+			"Cookie": cookie
+		}
+	} )
+	
+	if ( response.retcode !== 0 ) {
+		return Promise.reject( response.message );
+	}
+	
+	if ( response.data.code !== 200 ) {
+		return Promise.reject( response.data.msg );
+	}
+	
+	const data = {
+		idfv: IDFV,
+		device_id: deviceId,
+		device_fp: response.data.device_fp,
+		seed_id: seedId,
+		seed_time: seedTime
+	};
+	bot.redis.setHash( key, data ).catch( reason => bot.logger.error( "[获取device_fp] 存储米游社设备信息报错:", reason ) );
+	return [ deviceId, response.data.device_fp ];
 }

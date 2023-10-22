@@ -215,7 +215,7 @@ export class PrivateClass {
 	public async addPrivate( uid: string, cookie: string, userID: number, stoken: string = '' ): Promise<string> {
 		let isRefresh = false;
 		const list: Private[] = this.getUserPrivateList( userID );
-		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star-private-replace", AuthLevel.Master );
+		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star.private-replace", AuthLevel.Master );
 		//包涵更新Cookie情况，减少用户的疑问
 		list.forEach( value => {
 			if ( value.setting.uid === uid ) {

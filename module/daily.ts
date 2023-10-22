@@ -9,8 +9,8 @@ import { Order } from "@/modules/command";
 import { Sendable } from "@/modules/lib";
 import { DailyMaterial } from "#/genshin/types/ossMeta";
 import { getDailyMaterial, getInfo } from "#/genshin/utils/meta";
-import { DailyInfo } from "@/web-console/backend/types/daily";
 import { getRandomNumber } from "@/utils/random";
+import { DailyInfo } from "#/genshin/types/daily";
 
 export type DailyDataMaterial = {
 	[K in keyof DailyMaterial]: InfoResponse[]

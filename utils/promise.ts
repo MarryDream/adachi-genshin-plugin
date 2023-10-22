@@ -377,7 +377,8 @@ export async function dailyNotePromise(
 	try {
 		res = await api.getDailyNoteInfo( parseInt( uid ), server, cookie );
 	} catch ( error ) {
-		bot.logger.error( `用户 ${ uid } 的实时便笺数据查询失败，错误：${ ( <Error>error ).stack }` );
+		const errMsg = error instanceof Error ? error.stack || "" : <string>error;
+		bot.logger.error( `用户 ${ uid } 的实时便笺数据查询失败，错误：${ errMsg }` );
 		const CALL = <Order>bot.command.getSingle( "adachi.call" );
 		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 		throw `便笺数据查询错误，可能服务器出现了网络波动或米游社API故障，请${ appendMsg }联系持有者进行反馈`;
