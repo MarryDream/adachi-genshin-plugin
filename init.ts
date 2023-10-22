@@ -52,6 +52,11 @@ function initModules( cookie: string[] ) {
 export default definePlugin( {
 	name: "原神",
 	cfgList,
+	repo: {
+		owner: "MarryDream",
+		repoName: "adachi-genshin-plugin",
+		ref: "master"
+	},
 	server: {
 		routers
 	},
