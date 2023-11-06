@@ -24,7 +24,6 @@ export default defineComponent( {
 		d: Object
 	},
 	setup( props ) {
-		console.log( props.d )
 		function toString( num ) {
 			switch ( num ) {
 				case 5:

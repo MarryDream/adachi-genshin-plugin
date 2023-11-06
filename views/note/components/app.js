@@ -132,6 +132,6 @@ export default defineComponent( {
 			getData();
 		} );
 		
-		return { data, list }
+		return { data }
 	}
 } );

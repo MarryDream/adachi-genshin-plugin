@@ -215,9 +215,9 @@ const privateRemove: OrderConfig = {
 const privateReplace: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star.private-replace",
-	desc: [ "更新私人服务", "[账户序号] [cookie]" ],
+	desc: [ "更新私人服务", "[cookie|auto]" ],
 	headers: [ "pr" ],
-	regexps: [ "\\d+", ".+" ],
+	regexps: [ ".+" ],
 	ignoreCase: false,
 	main: "achieves/private/replace",
 	scope: MessageScope.Private,

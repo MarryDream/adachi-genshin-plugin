@@ -60,7 +60,13 @@ export default definePlugin( {
 	server: {
 		routers
 	},
-	publicDirs: [ "views", "front-utils", "assets", "adachi-assets" ],
+	publicDirs: [
+		"views",
+		"components",
+		"front-utils",
+		"assets",
+		"adachi-assets"
+	],
 	assets: {
 		manifestUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com/adachi-bot/version3/genshin_assets_manifest.yml",
 		downloadBaseUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com",
@@ -126,6 +132,7 @@ export default definePlugin( {
 			}
 			gLogger.info( "资源包解压完成" );
 			await file.deleteFile( zipDownloadPath, "plugin" );
+			return true;
 		},
 		replacePath: path => {
 			return path.replace( "adachi-bot/version3/genshin/", "" );

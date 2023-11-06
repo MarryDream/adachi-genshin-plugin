@@ -6,6 +6,6 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	
 	const week = Number.parseInt( matchResult.match[0] );
 	
-	const result = await dailyClass.getUserSubscription( userID, Number.isNaN( week ) ? week : undefined );
+	const result = await dailyClass.getUserSubscription( userID, Number.isNaN( week ) ?  undefined : week );
 	await sendMessage( result );
 } );

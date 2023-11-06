@@ -273,7 +273,6 @@ export async function getLedger(
 	};
 	
 	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
-	console.log( cookie )
 	const { data: result } = await $https.FETCH_LEDGER.get( query, {
 		headers: {
 			...HEADERS,
@@ -283,7 +282,6 @@ export async function getLedger(
 		}
 	} );
 	const data: ResponseBody<ApiType.Ledger> = toCamelCase( result );
-	console.log( data )
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}

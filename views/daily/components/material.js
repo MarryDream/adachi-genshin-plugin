@@ -138,7 +138,6 @@ export default defineComponent( {
 					element: travelerList.map( t => getElementIcon( t.element.id ) )
 				} );
 			}
-			console.log( result );
 			return result;
 		}
 		
