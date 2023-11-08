@@ -22,7 +22,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		return;
 	}
 	
-	const { cookie, mysID, uid, server } = info.setting;
+	const { cookie, mysID, uid } = info.setting;
 	const result: NameResult = getRealName( name );
 	
 	if ( !result.definite ) {
@@ -36,7 +36,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	const charID: number = characterMap.map[realName].id;
 	
 	try {
-		await mysInfoPromise( userID, mysID, cookie );
+		await mysInfoPromise( userID, Number.parseInt( uid ), mysID, cookie );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );
@@ -57,7 +57,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	try {
 		const dbKey: string = `silvery-star.character-temp-${ userID }`;
 		const skills: Skills = await mysAvatarDetailInfoPromise(
-			uid, charInfo.id, server, cookie, charInfo.constellations
+			uid, charInfo.id, cookie, charInfo.constellations
 		);
 		
 		const coefficients: number[] = [ 20, 15, 30, 35 ];

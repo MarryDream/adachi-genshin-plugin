@@ -1,5 +1,5 @@
 const template = `<div class="card-base" v-if="data">
-	<Header
+	<card-header
 		:data="data"
 		:url-params="urlParams"
 		:info-list="data.statsList.base"
@@ -70,7 +70,7 @@ import { computed, defineComponent, onMounted, ref } from "vue";
 import $https from "../../../front-utils/api.js";
 import { urlParamsGet } from "../../../front-utils/url.js";
 import { sizeClass, cardDataParser } from "../../../front-utils/data-parser.js";
-import Header from "./header.js";
+import CardHeader from "./card-header.js";
 import SectionTitle from "./section-title.js";
 import HomeBox from "../../../components/home-box/index.js";
 import CharacterBox from "../../../components/character-box/index.js";
@@ -81,7 +81,7 @@ export default defineComponent( {
 	name: "CardApp",
 	template,
 	components: {
-		Header,
+		CardHeader,
 		SectionTitle,
 		HomeBox,
 		CharacterBox,
@@ -117,6 +117,7 @@ export default defineComponent( {
 		const sizeClassFun = sizeClass( 3 );
 		
 		return {
+			data,
 			version,
 			showAvatars,
 			urlParams,

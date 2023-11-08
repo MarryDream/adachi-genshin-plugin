@@ -9,6 +9,7 @@ import { getCalendarDetail, getCalendarList, getLTokenBySToken, getMultiTokenByL
 import { Order } from "@/modules/command";
 import { checkCookieInvalidReason, cookie2Obj } from "#/genshin/utils/cookie";
 import { getUidHome } from "#/genshin/utils/meta";
+import { getRegion } from "#/genshin/utils/region";
 
 export enum ErrorMsg {
 	NOT_FOUND = "未查询到角色数据，请检查米哈游通行证（非UID）是否有误或是否设置角色信息公开",
@@ -42,11 +43,12 @@ async function checkQueryTimes( message: string ): Promise<string> {
 
 export async function baseInfoPromise(
 	userID: number,
+	uid: number,
 	mysID: number,
 	cookie: string = ""
 ): Promise<string> {
 	const { retcode, message, data } = await api.getBaseInfo(
-		mysID, cookie ? cookie : cookies.get()
+		uid, mysID, cookie ? cookie : cookies.get()
 	);
 	
 	if ( retcode === 10001 ) {
@@ -62,9 +64,7 @@ export async function baseInfoPromise(
 		throw ErrorMsg.NOT_FOUND;
 	}
 	
-	const { gameRoleId, nickname, region, level } = genshinInfo;
-	
-	const uid: number = parseInt( gameRoleId );
+	const { nickname, region, level } = genshinInfo;
 	
 	await bot.redis.setString( `silvery-star.user-querying-id-${ userID }`, uid );
 	await bot.redis.setHash( `silvery-star.card-data-${ uid }`, { nickname, uid, level } );
@@ -72,17 +72,10 @@ export async function baseInfoPromise(
 }
 
 export async function detailInfoPromise(
-	userID: number,
-	server: string,
+	uid: number,
 	cookie: string = ""
 ): Promise<number[]> {
-	const UID: string = await bot.redis.getString( `silvery-star.user-querying-id-${ userID }` );
-	if ( UID.length === 0 ) {
-		throw ErrorMsg.UNKNOWN;
-	}
-	
-	const detail: any = await bot.redis.getHash( `silvery-star.card-data-${ UID }` );
-	const uid: number = parseInt( UID );
+	const detail: any = await bot.redis.getHash( `silvery-star.card-data-${ uid }` );
 	
 	if ( detail.stats && detail.avatars && uid === parseInt( detail.uid ) ) {
 		if ( !cookie || JSON.parse( detail.avatars ).length > 8 ) {
@@ -95,7 +88,7 @@ export async function detailInfoPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	const { retcode, message, data } = await api.getDetailInfo( uid, server, cookie );
+	const { retcode, message, data } = await api.getDetailInfo( uid, cookie );
 	
 	const allHomes = getUidHome();
 	
@@ -130,7 +123,6 @@ export async function detailInfoPromise(
 
 export async function characterInfoPromise(
 	userID: number,
-	server: string,
 	charIDs: number[],
 	cookie: string = ""
 ): Promise<void> {
@@ -139,7 +131,7 @@ export async function characterInfoPromise(
 	if ( cookie.length === 0 ) {
 		cookie = cookies.get();
 	}
-	const { retcode, message, data } = await api.getCharactersInfo( uid, server, charIDs, cookie );
+	const { retcode, message, data } = await api.getCharactersInfo( uid, charIDs, cookie );
 	
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -222,22 +214,22 @@ export async function characterInfoPromise(
 
 export async function mysInfoPromise(
 	userID: number,
+	uid: number,
 	mysID: number,
 	cookie: string
 ): Promise<void> {
-	const server: string = await baseInfoPromise( userID, mysID, cookie );
-	const charIDs = <number[]>await detailInfoPromise( userID, server, cookie );
-	await characterInfoPromise( userID, server, charIDs, cookie );
+	await baseInfoPromise( userID, uid, mysID, cookie );
+	const charIDs = <number[]>await detailInfoPromise( uid, cookie );
+	await characterInfoPromise( userID, charIDs, cookie );
 }
 
 export async function mysAvatarDetailInfoPromise(
 	uid: string,
 	avatar: number,
-	server: string,
 	cookie: string,
 	constellation: CharacterCon
 ): Promise<ApiType.Skills> {
-	const { retcode, message, data } = await api.getAvatarDetailInfo( uid, avatar, server, cookie );
+	const { retcode, message, data } = await api.getAvatarDetailInfo( uid, avatar, cookie );
 	
 	if ( retcode !== 0 ) {
 		throw ErrorMsg.FORM_MESSAGE + message;
@@ -265,7 +257,6 @@ export async function mysAvatarDetailInfoPromise(
 
 export async function abyssInfoPromise(
 	userID: number,
-	server: string,
 	period: number,
 	cookie: string = ""
 ): Promise<void> {
@@ -287,7 +278,7 @@ export async function abyssInfoPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	let { retcode, message, data } = await api.getSpiralAbyssInfo( uid, server, period, cookie );
+	let { retcode, message, data } = await api.getSpiralAbyssInfo( uid, period, cookie );
 	
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -336,7 +327,6 @@ export async function abyssInfoPromise(
 
 export async function ledgerPromise(
 	uid: string,
-	server: string,
 	month: number,
 	cookie: string = ""
 ): Promise<void> {
@@ -355,7 +345,7 @@ export async function ledgerPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	const { retcode, message, data } = await api.getLedger( uid, server, month, cookie );
+	const { retcode, message, data } = await api.getLedger( uid, month, cookie );
 	
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -370,12 +360,11 @@ export async function ledgerPromise(
 
 export async function dailyNotePromise(
 	uid: string,
-	server: string,
 	cookie: string
 ): Promise<ApiType.Note> {
 	let res: ResponseBody<ApiType.Note>;
 	try {
-		res = await api.getDailyNoteInfo( parseInt( uid ), server, cookie );
+		res = await api.getDailyNoteInfo( parseInt( uid ), cookie );
 	} catch ( error ) {
 		const errMsg = error instanceof Error ? error.stack || "" : <string>error;
 		bot.logger.error( `用户 ${ uid } 的实时便笺数据查询失败，错误：${ errMsg }` );
@@ -417,12 +406,17 @@ export async function signInResultPromise(
 ): Promise<ApiType.SignInResult> {
 	const { retcode, message, data } = await api.mihoyoBBSSignIn( uid, server, cookie );
 	
+	let errorMessage: string = "";
 	if ( retcode === -100 ) {
-		throw Cookies.checkExpired( cookie );
+		errorMessage = Cookies.checkExpired( cookie );
 	} else if ( retcode !== 0 ) {
-		throw ErrorMsg.FORM_MESSAGE + message;
+		errorMessage = ErrorMsg.FORM_MESSAGE + message;
 	} else if ( data.gt || data.success !== 0 ) {
-		throw ErrorMsg.VERIFICATION_CODE;
+		errorMessage = ErrorMsg.VERIFICATION_CODE;
+	}
+	
+	if ( errorMessage ) {
+		throw new Error( errorMessage );
 	}
 	
 	bot.logger.info( `用户 ${ uid } 今日米游社签到成功` );

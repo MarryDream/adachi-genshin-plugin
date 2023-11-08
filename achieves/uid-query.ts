@@ -2,7 +2,6 @@ import Database from "@/modules/database";
 import { defineDirective } from "@/modules/command";
 import { RenderResult } from "@/modules/renderer";
 import { characterInfoPromise, detailInfoPromise } from "#/genshin/utils/promise";
-import { getRegion } from "#/genshin/utils/region";
 import { config, renderer } from "#/genshin/init";
 
 interface UIDResult {
@@ -43,14 +42,13 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	}
 	
 	const uid: number = info;
-	const server: string = getRegion( uid.toString()[0] );
 	const target: number = atID ? parseInt( atID ) : userID;
 	
 	try {
 		await redis.setHash( `silvery-star.card-data-${ uid }`, { uid } );
 		await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
-		const charIDs = <number[]>await detailInfoPromise( target, server );
-		await characterInfoPromise( target, server, charIDs );
+		const charIDs = <number[]>await detailInfoPromise( uid );
+		await characterInfoPromise( target, charIDs );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );

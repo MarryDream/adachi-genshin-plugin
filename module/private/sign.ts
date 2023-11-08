@@ -72,14 +72,15 @@ export class SignInService implements Service {
 			);
 		} catch ( error ) {
 			tryTime++;
+			const errorMsg = ( <Error>error ).message;
 			/* 触发验证码后再次尝试签到 */
-			if ( <string>error === ErrorMsg.VERIFICATION_CODE && tryTime <= 3 ) {
+			if ( errorMsg === ErrorMsg.VERIFICATION_CODE && tryTime <= 3 ) {
 				bot.logger.info( `[UID${ uid }] - 触发验证码，即将在3-5分钟后进行第${ tryTime }次重试，上限3次` );
 				await randomSleep( 180, 300, true );
 				await this.sign( reply, tryTime );
 				return;
 			}
-			await this.parent.sendMessage( <string>error );
+			await this.parent.sendMessage( errorMsg );
 		}
 	}
 	

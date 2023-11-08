@@ -127,7 +127,6 @@ export class NoteService implements Service {
 			const setting: UserInfo = this.parent.setting;
 			this.globalData = <Note>await dailyNotePromise(
 				setting.uid,
-				setting.server,
 				setting.cookie
 			);
 		} catch ( error ) {

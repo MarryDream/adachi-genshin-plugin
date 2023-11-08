@@ -11,6 +11,8 @@ import { register } from "@/utils/request";
 import { getMiHoYoRandomStr } from "./random";
 import { getRandomString, getRandomNumber, randomSleep } from "@/utils/random";
 import { accelerometer, batteryStatus, deviceFp, magnetometer } from "./device-fp";
+import { getRegion } from "#/genshin/utils/region";
+import { ErrorMsg } from "#/genshin/utils/promise";
 
 const apis = {
 	FETCH_ROLE_ID: "https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard",
@@ -19,8 +21,8 @@ const apis = {
 	FETCH_ROLE_SPIRAL_ABYSS: "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/spiralAbyss",
 	FETCH_ROLE_DAILY_NOTE: "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote",
 	FETCH_ROLE_AVATAR_DETAIL: "https://api-takumi.mihoyo.com/event/e20200928calculate/v1/sync/avatar/detail",
-	FETCH_GACHA_LIST: "https://webstatic.mihoyo.com/hk4e/gacha_info/cn_gf01/gacha/list.json",
-	FETCH_GACHA_DETAIL: "https://webstatic.mihoyo.com/hk4e/gacha_info/cn_gf01/$/zh-cn.json",
+	FETCH_GACHA_LIST: "https://operation-webstatic.mihoyo.com/gacha_info/hk4e/cn_gf01/gacha/list.json",
+	FETCH_GACHA_DETAIL: "https://operation-webstatic.mihoyo.com/gacha_info/hk4e/cn_gf01/$/zh-cn.json",
 	
 	FETCH_SIGN_IN: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign",
 	FETCH_SIGN_INFO: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/info",
@@ -42,11 +44,11 @@ const apis = {
 };
 
 const HEADERS = {
-	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.29.1",
-	"Referer": "https://webstatic.mihoyo.com/",
+	"User-Agent": "Mozilla/5.0 (Linux; Android 12; Yz-5e22f) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1",
+	"Referer": "https://webstatic.mihoyo.com",
 	"Origin": 'https://webstatic.mihoyo.com',
 	"X_Requested_With": 'com.mihoyo.hyperion',
-	"x-rpc-app_version": "2.29.1",
+	"x-rpc-app_version": "2.40.1",
 	"x-rpc-client_type": 5,
 	"DS": "",
 	"Cookie": "",
@@ -64,10 +66,11 @@ const { request: $https } = register( {
 
 /* mihoyo BBS API */
 export async function getBaseInfo(
+	uid: number,
 	mysID: number,
 	cookie: string,
 	time: number = 0,
-	verifyResult: string = ''
+	verifyResult: string = ""
 ): Promise<ResponseBody<ApiType.BBS>> {
 	const query = { uid: mysID };
 	const { data: result } = await $https.FETCH_ROLE_ID.get( query, {
@@ -85,27 +88,30 @@ export async function getBaseInfo(
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ MysID${ mysID } ][base] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getBaseInfo( mysID, cookie, ++time, verifyResult );
+		return await getBaseInfo( uid, mysID, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[base] " + verifyResult : verifyMsg;
 }
 
 export async function getDetailInfo(
 	uid: number,
-	server: string,
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.UserInfo>> {
+	const server = getRegion( uid.toString()[0] );
 	const query = {
 		role_id: uid,
 		server
 	};
+	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
 	const { data: result } = await $https.FETCH_ROLE_INDEX.get( query, {
 		headers: {
 			...HEADERS,
 			DS: getDS( query ),
-			Cookie: cookie
+			Cookie: cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	const data: ResponseBody<ApiType.UserInfo> = toCamelCase( result );
@@ -116,31 +122,35 @@ export async function getDetailInfo(
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][detail] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getDetailInfo( uid, server, cookie, ++time, verifyResult );
+		return await getDetailInfo( uid, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[detail] " + verifyResult : verifyMsg;
 }
 
 export async function getCharactersInfo(
-	roleID: number,
-	server: string,
+	uid: number,
 	charIDs: number[],
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.Character>> {
+	const server = getRegion( uid.toString()[0] );
+	
 	const body = {
 		character_ids: charIDs,
-		role_id: roleID,
+		role_id: uid,
 		server
 	};
 	
+	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
 	const { data: result } = await $https.FETCH_ROLE_CHARACTERS.post( body, {
 		headers: {
 			...HEADERS,
 			DS: getDS( undefined, JSON.stringify( body ) ),
 			Cookie: cookie,
-			"content-type": "application/json"
+			"content-type": "application/json",
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	
@@ -148,22 +158,22 @@ export async function getCharactersInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ roleID } ][char] 查询遇到验证码` );
+	bot.logger.warn( `[ UID${ uid } ][char] 查询遇到验证码` );
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ roleID } ][char] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getCharactersInfo( roleID, server, charIDs, cookie, ++time, verifyResult );
+		bot.logger.debug( `[ UID${ uid } ][char] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		return await getCharactersInfo( uid, charIDs, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[char] " + verifyResult : verifyMsg;
 }
 
 export async function getDailyNoteInfo(
 	uid: number,
-	server: string,
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.Note>> {
+	const server = getRegion( uid.toString()[0] );
 	const query = {
 		role_id: uid,
 		server
@@ -186,7 +196,7 @@ export async function getDailyNoteInfo(
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][note] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getDailyNoteInfo( uid, server, cookie, ++time, verifyResult );
+		return await getDailyNoteInfo( uid, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[note] " + verifyResult : verifyMsg;
 }
@@ -194,21 +204,24 @@ export async function getDailyNoteInfo(
 export async function getAvatarDetailInfo(
 	uid: string,
 	avatarID: number,
-	server: string,
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.AvatarDetailRaw>> {
+	const server = getRegion( uid.toString()[0] );
 	const query = {
 		avatar_id: avatarID,
 		region: server,
 		uid
 	};
+	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
 	const { data: result } = await $https.FETCH_ROLE_AVATAR_DETAIL.get( query, {
 		headers: {
 			...HEADERS,
 			"DS": getDS( query ),
-			"Cookie": cookie
+			"Cookie": cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} );
 	const data: ResponseBody<ApiType.AvatarDetailRaw> = toCamelCase( result );
@@ -219,53 +232,56 @@ export async function getAvatarDetailInfo(
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][avatar] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getAvatarDetailInfo( uid, avatarID, server, cookie, ++time, verifyResult );
+		return await getAvatarDetailInfo( uid, avatarID, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[avatar] " + verifyResult : verifyMsg;
 }
 
 /* period 为 1 时表示本期深渊，2 时为上期深渊 */
 export async function getSpiralAbyssInfo(
-	roleID: number,
-	server: string,
+	uid: number,
 	period: number,
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.Abyss>> {
+	const server = getRegion( uid.toString()[0] );
 	const query = {
-		role_id: roleID,
+		role_id: uid,
 		schedule_type: period,
 		server
 	};
+	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
 	const { data: result } = await $https.FETCH_ROLE_SPIRAL_ABYSS.get( query, {
 		headers: {
 			...HEADERS,
 			DS: getDS( query ),
-			Cookie: cookie
+			Cookie: cookie,
+			"x-rpc-device_id": device_id,
+			"x-rpc-device_fp": device_fp
 		}
 	} )
 	const data: ResponseBody<ApiType.Abyss> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ roleID } ][abyss] 查询遇到验证码` );
+	bot.logger.warn( `[ UID${ uid } ][abyss] 查询遇到验证码` );
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ roleID } ][abyss] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getSpiralAbyssInfo( roleID, server, period, cookie, ++time, verifyResult );
+		bot.logger.debug( `[ UID${ uid } ][abyss] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		return await getSpiralAbyssInfo( uid, period, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[abyss] " + verifyResult : verifyMsg;
 }
 
 export async function getLedger(
 	uid: string,
-	server: string,
 	mon: number,
 	cookie: string,
 	time: number = 0,
 	verifyResult: string = ''
 ): Promise<ResponseBody<ApiType.Ledger>> {
+	const server = getRegion( uid.toString()[0] );
 	const query = {
 		bind_uid: uid,
 		bind_region: server,
@@ -289,7 +305,7 @@ export async function getLedger(
 	if ( config.verifyEnable && time <= config.verifyRepeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][ledger] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getLedger( uid, server, mon, cookie, ++time, verifyResult );
+		return await getLedger( uid, mon, cookie, ++time, verifyResult );
 	}
 	throw config.verifyEnable ? "[ledger] " + verifyResult : verifyMsg;
 }
@@ -370,6 +386,9 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 			"x-rpc-device_fp": device_fp
 		}
 	} );
+	if ( !result.data ) {
+		throw new Error( ErrorMsg.FORM_MESSAGE + ( result.message || "签到 api 异常" ) );
+	}
 	const resp: ResponseBody<ApiType.SignInResult> = toCamelCase( result );
 	if ( !resp.data.gt && resp.data.success === 0 ) {
 		return resp;
@@ -380,7 +399,7 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 		bot.logger.debug( `[ UID${ uid } ][sign] 遇到验证码，尝试绕过 ~` );
 		return mihoyoBBSVerifySignIn( uid, region, cookie, resp.data.gt, resp.data.challenge );
 	}
-	throw `解决签到验证码失败 ${ typeof result === 'string' ? "\n" + result : "" }`;
+	throw new Error( `解决签到验证码失败 ${ typeof result === 'string' ? "\n" + result : "" }` );
 }
 
 export async function getSignInInfo( uid: string, region: string, cookie: string ): Promise<ResponseBody<ApiType.SignInInfo>> {

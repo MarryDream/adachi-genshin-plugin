@@ -115,7 +115,7 @@ export async function checkMysCookieInvalid( rawCookie: string ): Promise<Filter
 	}
 	
 	/* 验证Cookie的有效性 */
-	const { retcode, message, data } = await getBaseInfo( parseInt( mysID ), COOKIE );
+	const { retcode, message, data } = await getBaseInfo( 100000001, parseInt( mysID ), COOKIE );
 	
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( COOKIE );

@@ -15,9 +15,9 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		return;
 	}
 	
-	const { cookie, mysID } = info.setting;
+	const { cookie, mysID, uid } = info.setting;
 	try {
-		await mysInfoPromise( userID, mysID, cookie );
+		await mysInfoPromise( userID, Number.parseInt( uid ), mysID, cookie );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );

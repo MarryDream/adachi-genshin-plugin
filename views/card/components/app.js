@@ -97,6 +97,7 @@ export default defineComponent( {
 		
 		const getSizeClass = sizeClass( 3 );
 		return {
+			data,
 			urlParams,
 			version,
 			getSizeClass,

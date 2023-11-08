@@ -27,7 +27,7 @@ const template = `<div class="character-base">
 		<info-card title="套装效果" class="suit-list">
 			<template v-if="data?.effects.length">
 				<div v-for="(e, eKey) of data.effects" :key="eKey" class="suit-item">
-					<character-equipment :src="`/genshin/adachi-assets/artifact/${e.name}/image/${e.icon}.webp`"/>
+					<character-equipment :src="getEquipmentIcon( e )" />
 					<p class="suit-info">
 						<span class="title">{{ e.name }}</span>
 						<span class="suit-type">{{ e.num }}件套</span>
@@ -62,9 +62,9 @@ const template = `<div class="character-base">
 				<character-equipment :src="data.weapon.image" emptyIcon="icon-weapon"/>
 				<div class="weapon-info-content">
 					<div class="weapon-info">
-						<h3>{{ data!.weapon.name }}</h3>
-						<span class="weapon-level">Lv{{ data!.weapon.level }}</span>
-						<span class="weapon-affixLevel">精炼{{ data!.weapon.affixLevel }}阶</span>
+						<h3>{{ data.weapon.name }}</h3>
+						<span class="weapon-level">Lv{{ data.weapon.level }}</span>
+						<span class="weapon-affixLevel">精炼{{ data.weapon.affixLevel }}阶</span>
 					</div>
 					<div class="star-box">
 						<img v-for="s of data.weapon.rarity" :key="s"
@@ -127,6 +127,10 @@ export default defineComponent( {
 			};
 			document.documentElement.style.setProperty( "--hue-rotate", colorList[2] )
 		}
+		
+		const getEquipmentIcon = item => {
+			return `/genshin/adachi-assets/artifact/${ item.name }/image/${ item.icon }.webp`;
+		};
 
 		const elementIconSrc = computed( () => {
 			if ( !data.value ) return "";
@@ -195,6 +199,7 @@ export default defineComponent( {
 			showScore,
 			chartColor,
 			elementIconSrc,
+			getEquipmentIcon,
 			artifactsFontIcon,
 			artifacts,
 			weaponDesc

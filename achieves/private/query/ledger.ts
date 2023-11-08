@@ -34,9 +34,9 @@ export default defineDirective( "order", async ({ sendMessage, messageData, matc
 		return;
 	}
 	
-	const { cookie, uid, server } = info.setting;
+	const { cookie, uid } = info.setting;
 	try {
-		await ledgerPromise( uid, server, month, cookie );
+		await ledgerPromise( uid, month, cookie );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );
