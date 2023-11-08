@@ -38,20 +38,34 @@ export default defineComponent( {
 		}
 	},
 	setup( props ) {
-		const weapon = parse( props.data.weapon );
-		const character = parse( props.data.character );
+		const weapon = parse( props.data.weapon, "weapon" );
+		const character = parse( props.data.character, "character" );
 
-		function parse( materialList ) {
-			return Object.entries( materialList ).map( ( [ material, materialDetail ] ) => {
+		function parse( materialList, type ) {
+			const list = [];
+			for ( const material in materialList ) {
+				const materialDetail = materialList[ material ];
 				const units = [ ...materialDetail.units ];
-				return {
-					material: {
-						name: material,
-						rank: materialDetail.rank
-					},
-					units: units.sort( ( prev, cur ) => cur.rarity - prev.rarity )
+				
+				// 判断此行数据仅仅只有旅行者时，数据无效
+				let isValidData = true;
+				if ( type === "character" ) {
+					isValidData = !units.every( u => {
+						const [ id = "" ] = u.id.toString().split( "-" );
+						return [ "10000005", "10000007" ].includes( id );
+					} );
 				}
-			} );
+				if ( isValidData ) {
+					list.push( {
+						material: {
+							name: material,
+							rank: materialDetail.rank
+						},
+						units: units.sort( ( prev, cur ) => cur.rarity - prev.rarity )
+					} );
+				}
+			}
+			return list;
 		}
 
 		/* 组合素材数据为方便渲染的格式 */

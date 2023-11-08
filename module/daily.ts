@@ -25,13 +25,12 @@ export class DailySet {
 		this.weaponSet = {};
 		this.characterSet = {};
 		this.eventData = events;
-		
 		for ( let d of data ) {
 			if ( isCharacterInfo( d ) ) {
-				const dailyMaterial = d.updateCost.talentMaterials.find( material => material.rank === 4 );
-				if ( dailyMaterial ) {
-					this.add( dailyMaterial, d, "character" );
-				}
+				const dailyMaterials = d.updateCost.talentMaterials.filter( material => material.rank === 4 );
+				dailyMaterials.forEach( material => {
+					this.add( material, d, "character" );
+				} );
 			} else if ( isWeaponInfo( d ) ) {
 				const dailyMaterial = d.updateCost.ascensionMaterials.find( material => material.rank === 5 );
 				if ( dailyMaterial ) {
