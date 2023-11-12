@@ -3,7 +3,7 @@ import { dailyClass } from "../init";
 
 export default defineDirective( "switch", async ( { sendMessage, messageData, matchResult } ) => {
 	const userID: number = messageData.user_id;
-	const [ name ] = matchResult.match;
+	const [ _, name ] = matchResult.match;
 	
 	const intReg: RegExp = new RegExp( /\d+/g );
 	

@@ -2,7 +2,7 @@ import { defineDirective, InputParameter, SwitchMatchResult } from "@/modules/co
 import { aliasClass, typeData } from "#/genshin/init";
 
 export default defineDirective( "switch", async ( { sendMessage, matchResult, redis } ) => {
-	const [ name, alias ] = matchResult.match;
+	const [ _, name, alias ] = matchResult.match;
 	
 	const nameList: string[] = typeData.getNameList();
 	if ( !nameList.some( el => el === name ) ) {
