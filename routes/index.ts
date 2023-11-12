@@ -8,6 +8,7 @@ import DailyRouter from "./daily-route";
 import AlmanacRouter from "./almanac-route";
 import CharacterRouter from "./character-route";
 import LedgerRouter from "./ledger";
+import panelRouter from "./panel-route";
 
 export default {
 	"/api/card": CardRouter,
@@ -20,4 +21,5 @@ export default {
 	"/api/daily": DailyRouter,
 	"/api/almanac": AlmanacRouter,
 	"/api/ledger": LedgerRouter,
+	"/api/panel": panelRouter
 }

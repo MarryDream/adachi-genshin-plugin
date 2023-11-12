@@ -12,15 +12,15 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	const userID = messageData.user_id;
 	const nickname = messageData.sender.nickname;
 	const param = matchResult.match[0];
-	
-	const wishLimitNum = config.wishLimitNum;
+
+	const wishLimitNum = config.wish.limit;
 	if ( wishLimitNum < 99 && Number.parseInt( param ) > wishLimitNum ) {
 		await sendMessage( `因 BOT 持有者限制，仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
 		return;
 	}
-	
+
 	let choice: string | null = await redis.getString( `silvery-star.wish-choice-${ userID }` );
-	
+
 	// 限制抽卡次数小于一次大保底时禁用 until
 	if ( param === "until" ) {
 		const maxLimitNum = choice === "武器" ? 24 : choice === "常驻" ? 9 : 18;
@@ -29,7 +29,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 			return;
 		}
 	}
-	
+
 	if ( choice.length === 0 ) {
 		choice = "角色"
 		await redis.setString( `silvery-star.wish-choice-${ userID }`, "角色" );
@@ -37,7 +37,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		await redis.setHash( `silvery-star.wish-character-${ userID }`, { five: 1, four: 1, isUp: 0 } );
 		await redis.setHash( `silvery-star.wish-weapon-${ userID }`, { five: 1, four: 1, isUp: 0, epit: 0 } );
 	}
-	
+
 	const data: WishTotalSet | null = await wishClass.get( userID, choice, param );
 	if ( data === null ) {
 		await sendMessage( `${ choice }卡池暂未开放，请在游戏内卡池开放后再尝试` );
@@ -49,7 +49,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		await sendMessage( `卡池数据获取错误，请${ appendMsg }联系持有者重启BOT` );
 		return;
 	}
-	
+
 	/* 单次十连 */
 	if ( data.total === 10 ) {
 		await redis.setString( `silvery-star.wish-result-${ userID }`, JSON.stringify( {
@@ -68,7 +68,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		}
 		return;
 	}
-	
+
 	/* 统计抽取的数量 */
 	const compressed: WishStatistic[] = data.result
 		.filter( el => el.rank >= 4 )
@@ -80,7 +80,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 			pre[find].count++;
 			return pre;
 		}, <WishStatistic[]>[] );
-	
+
 	const getSet: ( type: string ) => WishStatistic[] = type => {
 		return compressed
 			.filter( el => el.type === type )
@@ -88,10 +88,10 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 				return x.rank === y.rank ? y.count - x.count : y.rank - x.rank;
 			} );
 	};
-	
+
 	const charSet = getSet( "角色" );
 	const weaponSet = getSet( "武器" );
-	
+
 	await redis.setHash( `silvery-star.wish-statistic-${ userID }`, {
 		character: JSON.stringify( charSet ),
 		weapon: JSON.stringify( weaponSet ),

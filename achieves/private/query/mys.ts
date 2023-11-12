@@ -42,8 +42,8 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	const res: RenderResult = await renderer.asSegment(
 		"/card/index.html", {
 			qq: userID,
-			style: config.cardWeaponStyle,
-			profile: config.cardProfile,
+			style: config.card.weaponStyle,
+			profile: config.card.profile,
 			appoint: appointName
 		} );
 	if ( res.code === "ok" ) {

@@ -165,6 +165,34 @@ const almanac: OrderConfig = {
 	main: "achieves/almanac"
 };
 
+const panel: OrderConfig = {
+	type: "order",
+	cmdKey: "marry-dream.panel",
+	desc: [ "详情", "[角色](UID|@)" ],
+	headers: [ "panel" ],
+	regexps: [
+		[ "[\\u4e00-\\u9fa5]+", "(\\d{9})?" ],
+		[ "[\\u4e00-\\u9fa5]+", "\\[CQ:at,qq=\\d+.*]" ]
+	],
+	main: "achieves/panel/main",
+	detail: "展示看板角色详情，游戏中将角色放入看板并打开\"显示详细信息\"才可查询"
+};
+
+const panelUpdate: OrderConfig = {
+	type: "order",
+	cmdKey: "marry-dream.panel-update",
+	desc: [ "更新详情", "(UID|@|-c)" ],
+	headers: [ "pud" ],
+	regexps: [
+		[ "(\\d{9})?" ],
+		[ "\\[CQ:at,qq=\\d+.*]" ],
+		[ "-c" ]
+	],
+	main: "achieves/panel/update",
+	detail: "更新并存储面板详情，游戏中将角色放入看板并打开\"显示详细信息\"才可获取\n" +
+		"使用 -c 清空存储的面板数据"
+};
+
 /* 私人服务指令 */
 const privateSubscribe: EnquireConfig = {
 	type: "enquire",
@@ -343,9 +371,9 @@ export default <ConfigType[]>[
 	guide, information, alias, domain,
 	getArtifact, impArtifact, wish, choosePool,
 	epitomizedPath, slip, uidQuery, privateMysQuery,
-	almanac, privateMysSetAppoint, privateSubscribe,
-	privateReplace, privateCancel, privateRemove,
-	privateSubList, privateReorder, privateToggleSign,
-	privateToggleNote, privateNoteEvent, privateNowNote,
-	privateAbyssQuery, privateLedger
+	almanac, panel, panelUpdate, privateMysSetAppoint,
+	privateSubscribe, privateReplace, privateCancel,
+	privateRemove, privateSubList, privateReorder,
+	privateToggleSign, privateToggleNote, privateNoteEvent,
+	privateNowNote, privateAbyssQuery, privateLedger
 ];

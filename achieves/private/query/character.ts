@@ -33,7 +33,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		return;
 	}
 	const realName: string = <string>result.info;
-	const charID: number = metaManagement.getMeta( "meta/character" )[realName].id;
+	const charID: number = metaManagement.getMeta( "meta/character" )[realName]?.id;
 
 	try {
 		await mysInfoPromise( userID, Number.parseInt( uid ), mysID, cookie );
@@ -113,7 +113,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	const res: RenderResult = await renderer.asSegment(
 		"/character/index.html", {
 			qq: userID,
-			showScore: config.showCharScore
+			showScore: config.chara.showScore
 		} );
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );

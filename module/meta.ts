@@ -7,6 +7,7 @@ import { CharacterList, WeaponList } from "#/genshin/module/type";
 import { SlipDetail } from "#/genshin/module/slip";
 import FileManagement from "@/modules/file";
 import { Logger } from "log4js";
+import { Panel } from "#/genshin/types";
 
 interface MetaData {
 	"meta/alias": AliasMap;
@@ -18,6 +19,10 @@ interface MetaData {
 	"meta/home": { name: string }[];
 	"meta/slip": SlipDetail;
 	"meta/weapon": WeaponList;
+	"meta/attr_icon": Panel.AttrIconMap;
+	"enka/artifact": Panel.EnKaArtifact;
+	"enka/chara": Panel.EnKaChara;
+	"enka/meta": Panel.EnKaMeta;
 }
 
 interface WatchEventHandle {
@@ -122,7 +127,15 @@ export class MetaManagement {
 			...Object.fromEntries( Object.values( data ).map( info => {
 				return [ info.name, info ];
 			} ) )
-		} : {}
+		} : {},
+		/** 图标 */
+		"meta/attr_icon": data => ( data || {} ),
+		/** enka-圣遗物 */
+		"enka/artifact": data => ( data || {} ),
+		/** enka-人物 */
+		"enka/chara": data => ( data || {} ),
+		/** enka-清单 */
+		"enka/meta": data => ( data || {} )
 	}
 
 	constructor(

@@ -8,6 +8,10 @@ import { CharacterCon, ResponseBody } from "../types";
 import { getCalendarDetail, getCalendarList, getLTokenBySToken, getMultiTokenByLoginTicket, verifyLtoken } from "./api";
 import { Order } from "@/modules/command";
 import { checkCookieInvalidReason, cookie2Obj } from "#/genshin/utils/cookie";
+import { SendFunc } from "@/modules/message";
+import { getCharaDetail } from "#/genshin/utils/api";
+import { config } from "#/genshin/init";
+import { EnKa } from "#/genshin/utils/enka";
 
 export enum ErrorMsg {
 	NOT_FOUND = "未查询到角色数据，请检查米哈游通行证（非UID）是否有误或是否设置角色信息公开",
@@ -20,6 +24,18 @@ export enum ErrorMsg {
 	VERIFICATION_CODE = "遇到验证码拦截，签到失败，请自行手动签到",
 	COOKIE_FORMAT_INVALID = `提供的Cookie字段错误，几种Cookie格式请查看教程，如有问题请联系管理员`,
 	GET_TICKET_INVAILD = `获取Stoken未知错误`
+}
+
+export enum PanelErrorMsg {
+	IS_PENDING = "两次请求间隔较短，请于 $ 后再次尝试",
+	PRIVATE_ACCOUNT = "对方未开启「显示角色详情」，无法查询",
+	SELF_PRIVATE_ACCOUNT = "请在游戏中打开「显示角色详情」后再次尝试。",
+	NOT_FOUND = "对方未将「$」展示在角色展柜中。",
+	SELF_NOT_FOUND = "请确认「$」已被展示在游戏的角色展柜中。",
+	PANEL_EMPTY = "对方未再展示柜中添加任何角色",
+	SELF_PANEL_EMPTY = "请在角色展柜中设置需要展示的角色",
+	FORM_MESSAGE = "EnKa接口报错: ",
+	UNKNOWN = "发生未知错误，请尝试重新获取数据"
 }
 
 /* 当前cookie查询次数上限，切换下一个cookie */
@@ -530,6 +546,80 @@ export async function calendarPromise(): Promise<ApiType.CalendarData[]> {
 	}
 	bot.logger.info( "活动数据查询成功" );
 	return calcDataList;
+}
+
+function getLimitTime( differ: number ): string {
+	differ = Math.floor( differ / 1000 );
+	const min = Math.floor( differ / 60 );
+	const sec = ( differ % 60 ).toString().padStart( 2, "0" );
+	return `${ min }分${ sec }秒`;
+}
+
+export async function charaPanelPromise( uid: number, self: boolean, sendMessage: SendFunc, isUpdate: boolean ): Promise<ApiType.Panel.Detail> {
+	const dbKey: string = `marry-dream.chara-panel-list-${ uid }`;
+	const dbKeyTimeout: string = `ari-plugin.chara-detail-time-${ uid }`;
+
+	const detailStr: string = await bot.redis.getString( dbKey );
+	const updateTime: string = await bot.redis.getString( dbKeyTimeout );
+
+	const limitWait: number = 3 * 60 * 1000;
+
+	let detail: ApiType.Panel.Detail | null = detailStr ? JSON.parse( detailStr ) : null;
+
+	/* 检查是否频繁请求 */
+	if ( updateTime && ( isUpdate || ( !isUpdate && !detail ) ) ) {
+		const differ = new Date().getTime() - parseInt( updateTime );
+		if ( differ <= limitWait ) {
+			const limit = getLimitTime( limitWait - differ );
+			throw PanelErrorMsg.IS_PENDING.replace( "$", limit );
+		}
+	}
+
+	if ( !detail || isUpdate ) {
+		const msgUser = self ? "" : `「${ uid }」`;
+		const startMsg = isUpdate ? `开始更新${ msgUser }面板数据，请稍后……` : "正在获取数据，请稍后……";
+		await sendMessage( startMsg );
+
+		let data: ApiType.Panel.EnKa;
+		try {
+			data = await getCharaDetail( config.panel.enKaApi, uid );
+		} catch ( error ) {
+			throw PanelErrorMsg.FORM_MESSAGE + error;
+		}
+
+		if ( !data?.playerInfo ) {
+			throw PanelErrorMsg.FORM_MESSAGE + "未能成功获取到数据，请重试";
+		}
+
+		await bot.redis.setString( dbKeyTimeout, new Date().getTime() );
+
+		/* 未展示任何角色 */
+		if ( !data.playerInfo.showAvatarInfoList ) {
+			throw self ? PanelErrorMsg.SELF_PANEL_EMPTY : PanelErrorMsg.PANEL_EMPTY;
+		}
+
+		/* 未开启查看详情 */
+		if ( !data.avatarInfoList ) {
+			throw self ? PanelErrorMsg.SELF_PRIVATE_ACCOUNT : PanelErrorMsg.PRIVATE_ACCOUNT;
+		}
+
+		let oldAvatars: ApiType.Panel.Avatar[] = detail?.avatars || [];
+		
+		detail = new EnKa().getDetailInfo( data );
+
+		/* 我也不知道为什么有的人报错，总之我先放两行代码在这里 */
+		if ( detail && !detail.avatars ) {
+			throw PanelErrorMsg.UNKNOWN;
+		}
+
+		if ( isUpdate ) {
+			/* 组装新旧头像 */
+			oldAvatars = oldAvatars.filter( oa => detail!.avatars.findIndex( na => oa.id === na.id ) === -1 );
+			detail.avatars = detail.avatars.concat( oldAvatars );
+		}
+		await bot.redis.setString( dbKey, JSON.stringify( detail ) );
+	}
+	return detail
 }
 
 /* Token转换相关API */

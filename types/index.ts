@@ -13,3 +13,4 @@ export * from "./calendar";
 export * from "./wish";
 export * from "./ledger";
 export * from "./cookie";
+export * as Panel from "./panel";

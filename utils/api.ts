@@ -40,7 +40,9 @@ const apis = {
 	FETCH_VERIFY_LTOKEN: "https://passport-api-v4.mihoyo.com/account/ma-cn-session/web/verifyLtoken",
 	FETCH_GET_LTOKEN_BY_STOKEN: "https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken",
 	/* 获取device_fp */
-	FETCH_GET_DEVICE_FP: "https://public-data-api.mihoyo.com/device-fp/api/getFp"
+	FETCH_GET_DEVICE_FP: "https://public-data-api.mihoyo.com/device-fp/api/getFp",
+	/* enka */
+	FETCH_ENKA_CHARA_DETAIL: "api/uid/$"
 };
 
 const deviceName = getRandomString( 5 );
@@ -87,12 +89,12 @@ export async function getBaseInfo(
 		return data;
 	}
 	bot.logger.warn( `[ MysID${ mysID } ][base] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ MysID${ mysID } ][base] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getBaseInfo( uid, mysID, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[base] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[base] " + verifyResult : verifyMsg;
 }
 
 export async function getDetailInfo(
@@ -121,12 +123,12 @@ export async function getDetailInfo(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][detail] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][detail] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getDetailInfo( uid, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[detail] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[detail] " + verifyResult : verifyMsg;
 }
 
 export async function getCharactersInfo(
@@ -161,12 +163,12 @@ export async function getCharactersInfo(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][char] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][char] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getCharactersInfo( uid, charIDs, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[char] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[char] " + verifyResult : verifyMsg;
 }
 
 export async function getDailyNoteInfo(
@@ -195,12 +197,12 @@ export async function getDailyNoteInfo(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][note] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][note] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getDailyNoteInfo( uid, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[note] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[note] " + verifyResult : verifyMsg;
 }
 
 export async function getAvatarDetailInfo(
@@ -231,12 +233,12 @@ export async function getAvatarDetailInfo(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][avatar] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][avatar] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getAvatarDetailInfo( uid, avatarID, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[avatar] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[avatar] " + verifyResult : verifyMsg;
 }
 
 /* period 为 1 时表示本期深渊，2 时为上期深渊 */
@@ -268,12 +270,12 @@ export async function getSpiralAbyssInfo(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][abyss] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][abyss] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getSpiralAbyssInfo( uid, period, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[abyss] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[abyss] " + verifyResult : verifyMsg;
 }
 
 export async function getLedger(
@@ -304,12 +306,12 @@ export async function getLedger(
 		return data;
 	}
 	bot.logger.warn( `[ UID${ uid } ][ledger] 查询遇到验证码` );
-	if ( config.verifyEnable && time <= config.verifyRepeat ) {
+	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][ledger] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getLedger( uid, mon, cookie, ++time, verifyResult );
 	}
-	throw config.verifyEnable ? "[ledger] " + verifyResult : verifyMsg;
+	throw config.verify.enable ? "[ledger] " + verifyResult : verifyMsg;
 }
 
 export async function getWishList(): Promise<ResponseBody<ApiType.WishList>> {
@@ -448,7 +450,7 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 	} );
 	//验证验证码
 	const { data: analysisCode } = await $https.FETCH_GET_VERIFY.get( {
-		token: config.verifyToken,
+		token: config.verify.token,
 		gt: data.gt,
 		challenge: data.challenge
 	}, {
@@ -487,7 +489,7 @@ export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie
 	};
 	
 	const { data: verifyCode } = await $https.FETCH_GET_VERIFY.get( {
-		token: config.verifyToken,
+		token: config.verify.token,
 		gt: gt,
 		challenge: challenge
 	}, {
@@ -676,4 +678,18 @@ async function getDeviceFp( uid: string, cookie: string ): Promise<string[]> {
 	};
 	bot.redis.setHash( key, data ).catch( reason => bot.logger.error( "[获取device_fp] 存储米游社设备信息报错:", reason ) );
 	return [ deviceId, response.data.device_fp ];
+}
+
+/* enka */
+export async function getCharaDetail( origin: string, uid: number ): Promise<ApiType.Panel.EnKa> {
+	const { data } = await $https.FETCH_ENKA_CHARA_DETAIL.get(
+		{},
+		url => origin + url.replace( "$", uid.toString() ),
+		{
+			headers: {
+				"User-Agent": "mari-plugin/1.0"
+			}
+		}
+	);
+	return data;
 }

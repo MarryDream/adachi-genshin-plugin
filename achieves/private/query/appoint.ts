@@ -22,8 +22,13 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		const result: NameResult = getRealName( name );
 		if ( result.definite ) {
 			const realName = <string>result.info;
+			const avatarId = metaManagement.getMeta( "meta/character" )[realName]?.id;
+			if ( !avatarId ) {
+				await sendMessage( "未找到对应的角色信息，请向开发者反馈此问题" );
+				return;
+			}
 			await ( <MysQueryService>single.services[MysQueryService.FixedField] ).modifyAppointChar(
-				metaManagement.getMeta( "meta/character" )[realName].id.toString()
+				avatarId.toString()
 			);
 			await sendMessage( "卡片头像指定成功" );
 		} else {

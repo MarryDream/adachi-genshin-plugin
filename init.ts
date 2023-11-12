@@ -10,13 +10,32 @@ import { formatMemories } from "@/utils/format";
 import { Logger } from "log4js";
 
 const initConfig = {
-	cardWeaponStyle: "normal",
-	cardProfile: "random",
-	showCharScore: true,
-	wishLimitNum: 99,
-	verifyEnable: false,
-	verifyRepeat: 1,
-	verifyToken: getRandomString( 6 )
+	card: {
+		weaponStyle: "normal",
+		profile: "random"
+	},
+	chara: {
+		showScore: true
+	},
+	wish: {
+		limit: 99
+	},
+	panel: {
+		uidQuery: false,
+		enKaApi: "https://enka.shinshin.moe/"
+	},
+	verify: {
+		enable: false,
+		repeat: 1,
+		token: getRandomString( 6 )
+	}
+	// cardWeaponStyle: "normal",
+	// cardProfile: "random",
+	// showCharScore: true,
+	// wishLimitNum: 99,
+	// verifyEnable: false,
+	// verifyRepeat: 1,
+	// verifyToken: getRandomString( 6 )
 };
 
 export let config: typeof initConfig;
