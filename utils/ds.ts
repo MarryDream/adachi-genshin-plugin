@@ -25,7 +25,7 @@ export function getDS( query: any, body: string = "" ): string {
 
 export function getDS2(): string {
 	// 6X salt
-	const n: string = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v";
+	const n: string = "jEpJb9rRARU2rXDA9qYbZ3selxkuct9a";
 	const i: number = Date.now() / 1000 | 0;
 	const r: string = getRandomString( 6 );
 	const c: string = Md5.init( `salt=${ n }&t=${ i }&r=${ r }` );

@@ -43,8 +43,10 @@ const apis = {
 	FETCH_GET_DEVICE_FP: "https://public-data-api.mihoyo.com/device-fp/api/getFp"
 };
 
+const deviceName = getRandomString( 5 );
+
 const HEADERS = {
-	"User-Agent": "Mozilla/5.0 (Linux; Android 12; Yz-5e22f) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1",
+	"User-Agent": `Mozilla/5.0 (Mozilla/5.0 (Linux; Android 12; ADC-${ deviceName }) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
 	"Referer": "https://webstatic.mihoyo.com",
 	"Origin": 'https://webstatic.mihoyo.com',
 	"X_Requested_With": 'com.mihoyo.hyperion',
@@ -353,20 +355,27 @@ export async function getCalendarDetail(): Promise<ResponseBody<ApiType.Calendar
 
 /* 参考 https://github.com/DGP-Studio/DGP.Genshin.MiHoYoAPI/blob/main/Sign/SignInProvider.cs */
 const activityID: string = "e202009291139501";
-const SIGN_HEADERS = {
-	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.34.1",
-	"Referer": "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html" +
-		`?bbs_auth_required=true&act_id=${ activityID }&utm_source=bbs&utm_medium=mys&utm_campaign=icon`,
-	"Accept": "application/json, text/plain, */*",
-	"Origin": "https://webstatic.mihoyo.com",
-	"X-Requested-With": "com.mihoyo.hyperion",
-	"x-rpc-app_version": "2.34.1",
-	"x-rpc-client_type": 5,
-	"x-rpc-app_id": "bll8iq97cem8",
-	"x-rpc-device_id": "",
-	"x-rpc-device_fp": "",
-	"DS": ""
-};
+
+async function getSignHeaders( uid: string, cookie: string, ds = true ) {
+	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
+	return {
+		"content-type": "application/json",
+		"x-rpc-app_version": "2.40.1",
+		"x-rpc-device_id": device_id,
+		"x-rpc-client_type": "5",
+		"User-Agent": `Mozilla/5.0 (Linux; Android 12; ADC-${ deviceName }) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
+		Referer: 'https://webstatic.mihoyo.com',
+		"X-Requested-With": "com.mihoyo.hyperion",
+		"x-rpc-platform": "android",
+		"x-rpc-device_model": "Mi 10",
+		"x-rpc-device_name": deviceName,
+		"x-rpc-channel": 'miyousheluodi',
+		"x-rpc-sys_version": '6.0.1',
+		Cookie: cookie,
+		"x-rpc-device_fp": device_fp,
+		"DS": ds ? getDS2() : ""
+	}
+}
 
 /* Sign In API */
 export async function mihoyoBBSSignIn( uid: string, region: string, cookie: string, time: number = 0 ): Promise<ResponseBody<ApiType.SignInResult>> {
@@ -375,16 +384,8 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 		uid, region
 	};
 	
-	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
-		headers: {
-			...SIGN_HEADERS,
-			"content-type": "application/json",
-			Cookie: cookie,
-			"DS": getDS2(),
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: await getSignHeaders( uid, cookie )
 	} );
 	if ( !result.data ) {
 		throw new Error( ErrorMsg.FORM_MESSAGE + ( result.message || "签到 api 异常" ) );
@@ -408,17 +409,11 @@ export async function getSignInInfo( uid: string, region: string, cookie: string
 		region, uid
 	};
 	
-	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_INFO.get( query, {
-		headers: {
-			...SIGN_HEADERS,
-			Cookie: cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: await getSignHeaders( uid, cookie, false )
 	} );
 	if ( !result.data ) {
-		throw result.message;
+		throw new Error( result.message );
 	}
 	return toCamelCase( result );
 }
@@ -506,18 +501,12 @@ export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie
 		throw `[verify] 验证失败 ${ typeof verifyCode === 'string' ? "\n" + verifyCode : verifyCode.info }`;
 	}
 	
-	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
 		headers: {
-			...SIGN_HEADERS,
-			"content-type": "application/json",
-			Cookie: cookie,
-			DS: getDS2(),
+			...await getSignHeaders( uid, cookie ),
 			"x-rpc-challenge": verifyCode.data.challenge,
 			"x-rpc-validate": verifyCode.data.validate,
-			"x-rpc-seccode": `${ verifyCode.data.validate }|jordan`,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
+			"x-rpc-seccode": `${ verifyCode.data.validate }|jordan`
 		}
 	} );
 	
