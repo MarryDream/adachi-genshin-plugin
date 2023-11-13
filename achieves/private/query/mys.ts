@@ -4,7 +4,7 @@ import { MysQueryService } from "#/genshin/module/private/mys";
 import { RenderResult } from "@/modules/renderer";
 import { mysInfoPromise } from "#/genshin/utils/promise";
 import { getPrivateAccount } from "#/genshin/utils/private";
-import { characterMap, config, renderer } from "#/genshin/init";
+import { config, metaManagement, renderer } from "#/genshin/init";
 
 export default defineDirective( "order", async ( { sendMessage, messageData, matchResult, auth, logger } ) => {
 	const { user_id: userID } = messageData;
@@ -14,7 +14,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		await sendMessage( info );
 		return;
 	}
-	
+
 	const { cookie, mysID, uid } = info.setting;
 	try {
 		await mysInfoPromise( userID, Number.parseInt( uid ), mysID, cookie );
@@ -24,20 +24,21 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 			return;
 		}
 	}
-	
+
 	const appointId = info.options[MysQueryService.FixedField].appoint;
 	let appointName: string = "empty";
-	
+
 	if ( appointId !== "empty" ) {
-		for ( const id in characterMap.map ) {
-			const { id: mapId, name } = characterMap.map[id];
+		const charaData = metaManagement.getMeta( "meta/character" );
+		for ( const id in charaData ) {
+			const { id: mapId, name } = charaData[id];
 			if ( mapId === parseInt( appointId ) ) {
 				appointName = name;
 				break;
 			}
 		}
 	}
-	
+
 	const res: RenderResult = await renderer.asSegment(
 		"/card/index.html", {
 			qq: userID,

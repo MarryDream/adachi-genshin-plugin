@@ -1,8 +1,8 @@
 import Database from "@/modules/database";
 import { OssArtifact, OssDomain } from "#/genshin/types/ossMeta";
-import { getArtifact, getDomain } from "#/genshin/utils/meta";
 import { ArtifactRouter } from "#/genshin/types/artifact";
 import { getRandomNumber } from "@/utils/random";
+import { metaManagement } from "#/genshin/init";
 
 interface PairData {
 	property: number;
@@ -22,11 +22,11 @@ export class ArtClass {
 		"风元素伤害加成", "冰元素伤害加成", "雷元素伤害加成",
 		"岩元素伤害加成", "水元素伤害加成", "火元素伤害加成"
 	]
-	
+
 	private static slotName: string[] = [
 		"生之花", "死之羽", "时之沙", "空之杯", "理之冠"
 	]
-	
+
 	/* type=0表示初始数据，type=1表示满级数据 */
 	private static mainStatData( stat: number, type: number ): number {
 		switch ( stat ) {
@@ -68,12 +68,12 @@ export class ArtClass {
 				return -1;
 		}
 	}
-	
+
 	private static getProperty( dataArr: number[] ): number {
 		let sufSum: number[] = [];
 		let sum: number = 0;
 		const length: number = dataArr.length;
-		
+
 		for ( let w of dataArr ) {
 			sufSum.push( sum += w );
 		}
@@ -85,19 +85,26 @@ export class ArtClass {
 		}
 		return -1;
 	}
-	
-	private weights: any;
-	private suits: OssArtifact["suits"] = {};
-	private domains: OssDomain = getDomain();
-	private values: number[][] = [];
-	
-	constructor() {
-		const data = getArtifact();
-		this.suits = data.suits;
-		this.weights = data.data.weights;
-		this.values = data.data.values;
+
+	private get suits(): OssArtifact["suits"] {
+		const data = metaManagement.getMeta( "meta/artifact" );
+		return data.suits;
+	};
+
+	private get weights(): any {
+		const data = metaManagement.getMeta( "meta/artifact" );
+		return data.data.weights;
+	};
+
+	private get values(): number[][] {
+		const data = metaManagement.getMeta( "meta/artifact" );
+		return data.data.values;
+	};
+
+	private get domains(): OssDomain {
+		return metaManagement.getMeta( "meta/domain" );
 	}
-	
+
 	private getIds( domainID: number = -1 ): Promise<Array<number | string>> {
 		return new Promise( ( resolve, reject ) => {
 			if ( domainID === -1 ) {
@@ -110,20 +117,20 @@ export class ArtClass {
 			}
 		} );
 	}
-	
+
 	private getSlot(): number {
 		return ArtClass.getProperty( this.weights.slot );
 	}
-	
+
 	private getMainStat( slot: number ): number {
 		return ArtClass.getProperty( this.weights.prob[slot].main );
 	}
-	
+
 	private getSubStats( slot: number, mainStat: number ): Property[] {
 		let subStats: Property[] = [];
 		let pairs: PairData[] = [];
 		const length: number = this.values[0].length;
-		
+
 		for ( let i = 0; i < length; i++ ) {
 			const w: number = this.weights.prob[slot].sub[i] * getRandomNumber( 0, 1e5 );
 			pairs.push( { property: i, weight: w } );
@@ -140,14 +147,14 @@ export class ArtClass {
 				num++;
 			}
 		}
-		
+
 		return subStats;
 	}
-	
+
 	private getStartNum(): number {
 		return ArtClass.getProperty( this.weights.number ) === 0 ? 4 : 3;
 	}
-	
+
 	private getImproves(): any[] {
 		let improves: any[] = [];
 		for ( let i = 0; i < 5; i++ ) {
@@ -156,10 +163,10 @@ export class ArtClass {
 				stage: ArtClass.getProperty( this.weights.stage )
 			} );
 		}
-		
+
 		return improves;
 	}
-	
+
 	private toString( num: number ): string {
 		if ( num < 1 ) {
 			return ( num * 100 ).toFixed( 1 ) + "%";
@@ -167,7 +174,7 @@ export class ArtClass {
 			return Math.round( num ).toString();
 		}
 	}
-	
+
 	private getResult(
 		ids: Array<number | string>, slot: number, started: number,
 		main: number, sub: Property[], improves: any[]
@@ -177,10 +184,10 @@ export class ArtClass {
 			const info = this.suits[id];
 			return info.levelList.includes( 5 );
 		} );
-		
+
 		const domainNum: number = getRandomNumber( 0, effectiveIds.length - 1 );
 		const id = Number.parseInt( <string>effectiveIds[domainNum] );
-		
+
 		const par: ArtifactRouter = {
 			name: this.suits[id].suit[slot],
 			icon: slot.toString(),
@@ -193,7 +200,7 @@ export class ArtClass {
 			subStats: [],
 			level: -1
 		};
-		
+
 		const initArt: ArtifactRouter = JSON.parse( JSON.stringify( par ) );
 		initArt.level = 0;
 		initArt.mainStat.value = this.toString( ArtClass.mainStatData( main, 0 ) );
@@ -205,7 +212,7 @@ export class ArtClass {
 				value: this.toString( this.values[stg][key] )
 			} );
 		}
-		
+
 		const reinArt: ArtifactRouter = JSON.parse( JSON.stringify( par ) );
 		reinArt.level = 20;
 		reinArt.mainStat.value = this.toString( ArtClass.mainStatData( main, 1 ) );
@@ -229,10 +236,10 @@ export class ArtClass {
 			reinArt.subStats[i].name = ArtClass.propertyName[id];
 			reinArt.subStats[i].value = this.toString( <number>reinArt.subStats[i].value );
 		}
-		
+
 		return [ initArt, reinArt ];
 	}
-	
+
 	public async get( userID: number, domain: number, redis: Database ): Promise<string> {
 		let flag: string = "";
 		try {
@@ -242,11 +249,11 @@ export class ArtClass {
 			const subStats: Property[] = this.getSubStats( slot, mainStat );
 			const started: number = this.getStartNum();
 			const improves: any[] = this.getImproves();
-			
+
 			const [ initProp, reinProp ] = this.getResult(
 				artifactIDs, slot, started, mainStat, subStats, improves
 			);
-			
+
 			await redis.setString(
 				`silvery-star.artifact-${ userID }`,
 				JSON.stringify( { initProp, reinProp } )
@@ -256,7 +263,7 @@ export class ArtClass {
 		}
 		return flag;
 	}
-	
+
 	public domainInfo(): string {
 		return this.domains.map( ( domain, index ) => {
 			return `${ index + 1 }. ${ domain.name }`

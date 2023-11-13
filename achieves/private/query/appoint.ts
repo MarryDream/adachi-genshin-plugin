@@ -2,15 +2,15 @@ import { Private } from "#/genshin/module/private/main";
 import { defineDirective } from "@/modules/command";
 import { MysQueryService } from "#/genshin/module/private/mys";
 import { NameResult, getRealName } from "#/genshin/utils/name";
-import { characterMap, privateClass } from "#/genshin/init";
+import { metaManagement, privateClass } from "#/genshin/init";
 
 export default defineDirective( "order", async ( { sendMessage, messageData, matchResult } ) => {
 	const userID = messageData.user_id;
 	const data = matchResult.match[0];
-	
+
 	const [ id, name ] = data.split( " " );
 	const single: Private | string = await privateClass.getSinglePrivate( userID, parseInt( id ) );
-	
+
 	if ( typeof single === "string" ) {
 		await sendMessage( single );
 	} else {
@@ -23,7 +23,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		if ( result.definite ) {
 			const realName = <string>result.info;
 			await ( <MysQueryService>single.services[MysQueryService.FixedField] ).modifyAppointChar(
-				characterMap.map[realName].id.toString()
+				metaManagement.getMeta( "meta/character" )[realName].id.toString()
 			);
 			await sendMessage( "卡片头像指定成功" );
 		} else {

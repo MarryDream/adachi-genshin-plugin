@@ -5,7 +5,7 @@ import { CharacterInformation, EffectsShirt, EvaluateScore, ScoreItem, Skills } 
 import { getRealName, NameResult } from "#/genshin/utils/name";
 import { mysAvatarDetailInfoPromise, mysInfoPromise } from "#/genshin/utils/promise";
 import { getPrivateAccount } from "#/genshin/utils/private";
-import { characterMap, config, renderer, typeData } from "#/genshin/init";
+import { config, metaManagement, renderer, typeData } from "#/genshin/init";
 
 function evaluate( obj: { rarity: number; level: number }, max: number = 5 ): number {
 	return ( obj.rarity / max ) * obj.level;
@@ -13,18 +13,18 @@ function evaluate( obj: { rarity: number; level: number }, max: number = 5 ): nu
 
 export default defineDirective( "order", async ( { sendMessage, messageData, matchResult, auth, redis, logger } ) => {
 	const { user_id: userID } = messageData;
-	
+
 	const [ idMsg, name ] = matchResult.match;
-	
+
 	const info: Private | string = await getPrivateAccount( userID, idMsg, auth );
 	if ( typeof info === "string" ) {
 		await sendMessage( info );
 		return;
 	}
-	
+
 	const { cookie, mysID, uid } = info.setting;
 	const result: NameResult = getRealName( name );
-	
+
 	if ( !result.definite ) {
 		const message: string = result.info.length === 0
 			? "查询失败，请检查角色名称是否正确"
@@ -33,8 +33,8 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		return;
 	}
 	const realName: string = <string>result.info;
-	const charID: number = characterMap.map[realName].id;
-	
+	const charID: number = metaManagement.getMeta( "meta/character" )[realName].id;
+
 	try {
 		await mysInfoPromise( userID, Number.parseInt( uid ), mysID, cookie );
 	} catch ( error ) {
@@ -43,13 +43,13 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 			return;
 		}
 	}
-	
+
 	const { avatars } = await redis.getHash( `silvery-star.card-data-${ uid }` );
 	const data: CharacterInformation[] = JSON.parse( avatars );
 	const charInfo = data.find( ( { id } ) => {
 		return charID === -1 ? id === 10000005 || id === 10000007 : id === charID;
 	} );
-	
+
 	if ( !charInfo ) {
 		await sendMessage( `[UID-${ uid }] 未拥有角色 ${ realName }` );
 		return;
@@ -59,7 +59,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		const skills: Skills = await mysAvatarDetailInfoPromise(
 			uid, charInfo.id, cookie, charInfo.constellations
 		);
-		
+
 		const coefficients: number[] = [ 20, 15, 30, 35 ];
 		const list: ScoreItem[] = [ {
 			label: "圣遗物",
@@ -77,7 +77,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 					( pre, cur ) => pre + cur.levelCurrent, 0 ), 24
 			) / 24
 		} ];
-		
+
 		const effects: EffectsShirt[] = charInfo.effects.map( effect => {
 			const [ name, num ] = effect.name.split( " " );
 			const artifact = typeData.artifact.suits[name];
@@ -90,14 +90,14 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 					: "0"
 			}
 		} )
-		
+
 		const score: EvaluateScore = {
 			list,
 			total: list.reduce( ( pre, cur, i ) => {
 				return pre + cur.percentage * coefficients[i]
 			}, 0 )
 		};
-		
+
 		await redis.setString( dbKey, JSON.stringify( {
 			...charInfo,
 			effects,
@@ -109,7 +109,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		await sendMessage( <string>error );
 		return;
 	}
-	
+
 	const res: RenderResult = await renderer.asSegment(
 		"/character/index.html", {
 			qq: userID,

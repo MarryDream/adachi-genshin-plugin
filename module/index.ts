@@ -7,5 +7,4 @@ export { SlipClass } from "./slip";
 export { TypeData } from "./type";
 export { WishClass } from "./wish";
 export { PrivateClass } from "./private/main";
-export { CharacterMap } from "./character-map";
-export { WeaponMap } from "./weapon-map";
+export { MetaManagement } from "./meta";

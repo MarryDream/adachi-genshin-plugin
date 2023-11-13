@@ -1,5 +1,5 @@
 import bot from "ROOT";
-import { getAliasName } from "#/genshin/utils/meta";
+import { metaManagement } from "#/genshin/init";
 
 export interface AliasMap {
 	[ P: string ]: {
@@ -9,31 +9,31 @@ export interface AliasMap {
 }
 
 export class AliasClass {
-	public list: Map<string, string> = new Map();
+	private dbData: Map<string, string> = new Map();
 	
 	constructor() {
-		this.list = new Map();
-		
-		this.getList().then( ( result: Map<string, string> ) => {
-			this.list = result;
-		} );
+		this.setDbData();
 	}
 	
-	public async getList(): Promise<Map<string, string>> {
-		const list = new Map();
-		const alias: AliasMap = getAliasName();
+	private get metaData(): Map<string, string> {
+		const metaData = new Map();
+		const alias: AliasMap = metaManagement.getMeta( "meta/alias" );
 		for ( let el of Object.values(alias).flat() ) {
 			for ( let alias of el.aliasNames ) {
-				list.set( alias, el.realName );
+				metaData.set( alias, el.realName );
 			}
 		}
-		
+		return metaData;
+	}
+	
+	private async setDbData()  {
+		const dbData = new Map();
 		const added: string[] = await bot.redis.getKeysByPrefix( "silvery-star.alias-add-" );
 		for ( let key of added ) {
 			const realName = <string>key.split( "-" ).pop();
 			const aliasList: string[] = await bot.redis.getList( key );
 			for ( let alias of aliasList ) {
-				list.set( alias, realName );
+				dbData.set( alias, realName );
 			}
 		}
 		
@@ -41,26 +41,29 @@ export class AliasClass {
 		for ( let key of removed ) {
 			const aliasList: string[] = await bot.redis.getList( key );
 			for ( let alias of aliasList ) {
-				list.delete( alias );
+				dbData.delete( alias );
 			}
 		}
-		
-		return list;
+		this.dbData = dbData;
 	}
 	
 	public async addPair( alias: string, realName: string ): Promise<void> {
 		await bot.redis.addListElement( `silvery-star.alias-add-${ realName }`, alias );
 		await bot.redis.delListElement( `silvery-star.alias-remove`, alias );
-		this.list = await this.getList();
+		await this.setDbData();
 	}
 	
 	public async removeAlias( alias: string, realName: string ): Promise<void> {
 		await bot.redis.addListElement( `silvery-star.alias-remove`, alias );
 		await bot.redis.delListElement( `silvery-star.alias-add-${ realName }`, alias );
-		this.list = await this.getList();
+		await this.setDbData();
 	}
 	
 	public search( name: string ): string | undefined {
-		return this.list.get( name );
+		const data = this.dbData.get( name );
+		if ( data ) {
+			return data;
+		}
+		return this.metaData.get( name );
 	}
 }

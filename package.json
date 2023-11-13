@@ -1,0 +1,12 @@
+{
+  "name": "genshin",
+  "version": "1.0.0",
+  "description": "adachi-genshin-plugin 为 [Adachi-BOT](https://github.com/SilveryStar/Adachi-BOT) 的衍生插件，提供原神相关的一系列查询功能。",
+  "main": "init.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.3"
+  }
+}

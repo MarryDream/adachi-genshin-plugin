@@ -1,5 +1,4 @@
-import { getArtifact } from "#/genshin/utils/meta";
-import { characterMap, weaponMap } from "#/genshin/init";
+import { metaManagement } from "#/genshin/init";
 
 export interface CharacterList {
 	[P: string]: {
@@ -24,33 +23,35 @@ export class TypeData {
 	public get weapon() {
 		return this.getWeaponList();
 	}
-	
+
 	public get character() {
 		return this.getCharacterList();
 	}
-	
+
 	public get artifact() {
 		return this.formatArtifact();
 	}
-	
+
 	private getCharacterList() {
 		const list: Record<string, string> = {};
-		Object.values( characterMap.map ).forEach( chara => {
+		const charaData = metaManagement.getMeta( "meta/character" );
+		Object.values( charaData ).forEach( chara => {
 			list[chara.name] = chara.element;
 		} );
 		return list;
 	}
-	
+
 	private getWeaponList() {
 		const list: Record<string, string> = {};
-		Object.values( weaponMap.map ).forEach( weapon => {
+		const weaponMap = metaManagement.getMeta( "meta/weapon" );
+		Object.values( weaponMap ).forEach( weapon => {
 			list[weapon.name] = weapon.type;
 		} );
 		return list;
 	}
-	
+
 	private formatArtifact() {
-		const result = getArtifact();
+		const result = metaManagement.getMeta( "meta/artifact" );
 		return {
 			...result,
 			suits: {
@@ -62,7 +63,7 @@ export class TypeData {
 			suitNames: Object.values( result.suits ).map( suit => suit.name )
 		}
 	}
-	
+
 	public getNameList(): string[] {
 		return [
 			...Object.keys( this.weapon ),

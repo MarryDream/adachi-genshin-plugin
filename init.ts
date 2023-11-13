@@ -7,7 +7,6 @@ import { getRandomString } from "@/utils/random";
 import { getFileSize } from "@/utils/network";
 import Progress from "@/utils/progress";
 import { formatMemories } from "@/utils/format";
-import compressing from "compressing";
 import { Logger } from "log4js";
 
 const initConfig = {
@@ -23,8 +22,7 @@ const initConfig = {
 export let config: typeof initConfig;
 
 export let renderer: Renderer;
-export let characterMap: m.CharacterMap;
-export let weaponMap: m.WeaponMap;
+export let metaManagement: m.MetaManagement;
 export let artClass: m.ArtClass;
 export let cookies: m.Cookies;
 export let typeData: m.TypeData;
@@ -36,8 +34,6 @@ export let slipClass: m.SlipClass;
 export let privateClass: m.PrivateClass;
 
 function initModules( cookie: string[] ) {
-	characterMap = new m.CharacterMap();
-	weaponMap = new m.WeaponMap();
 	artClass = new m.ArtClass();
 	cookies = new m.Cookies( cookie );
 	typeData = new m.TypeData();
@@ -177,6 +173,11 @@ export default definePlugin( {
 	async mounted( param ) {
 		/* 加载 genshin.yml 配置 */
 		config = param.configRegister( "main", initConfig );
+		/* 初始化 meta 数据 */
+		metaManagement = new m.MetaManagement( param.file, param.logger );
+		/* 初始化 meta 监听器 */
+		metaManagement.watchStart();
+		
 		const cookieCfg = param.configRegister( "cookies", {
 			cookies: [ "米游社Cookies(允许设置多个)" ]
 		} );
@@ -186,5 +187,11 @@ export default definePlugin( {
 		/* 实例化渲染器 */
 		renderer = param.renderRegister( "#app", "views" );
 		initModules( cookieCfg.cookies );
+	},
+	async unmounted() {
+		/* 清空 meta 事件 */
+		metaManagement.clear();
+		/* 关闭 meta 监听器 */
+		await metaManagement.watchClose();
 	}
 } );
