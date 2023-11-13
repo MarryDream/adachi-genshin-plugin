@@ -82,6 +82,10 @@ export function cardDataParser( data ) {
 			icon: "/genshin/adachi-assets/resource/material/散失的草神瞳.webp",
 			label: "草神瞳数",
 			value: stats.dendroculusNumber
+		}, {
+			icon: "/genshin/adachi-assets/resource/material/散失的水神瞳.webp",
+			label: "水神瞳数",
+			value: stats.hydroculusNumber
 		} ]
 	};
 	
