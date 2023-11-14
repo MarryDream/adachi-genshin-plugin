@@ -557,7 +557,7 @@ function getLimitTime( differ: number ): string {
 
 export async function charaPanelPromise( uid: number, self: boolean, sendMessage: SendFunc, isUpdate: boolean ): Promise<ApiType.Panel.Detail> {
 	const dbKey: string = `marry-dream.chara-panel-list-${ uid }`;
-	const dbKeyTimeout: string = `ari-plugin.chara-detail-time-${ uid }`;
+	const dbKeyTimeout: string = `marry-dream.chara-detail-time-${ uid }`;
 
 	const detailStr: string = await bot.redis.getString( dbKey );
 	const updateTime: string = await bot.redis.getString( dbKeyTimeout );

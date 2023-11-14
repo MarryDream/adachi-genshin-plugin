@@ -8,6 +8,7 @@ import { getFileSize } from "@/utils/network";
 import Progress from "@/utils/progress";
 import { formatMemories } from "@/utils/format";
 import { Logger } from "log4js";
+import { scheduleHub } from "#/genshin/utils/schedule-hub";
 
 const initConfig = {
 	card: {
@@ -29,13 +30,6 @@ const initConfig = {
 		repeat: 1,
 		token: getRandomString( 6 )
 	}
-	// cardWeaponStyle: "normal",
-	// cardProfile: "random",
-	// showCharScore: true,
-	// wishLimitNum: 99,
-	// verifyEnable: false,
-	// verifyRepeat: 1,
-	// verifyToken: getRandomString( 6 )
 };
 
 export let config: typeof initConfig;
@@ -97,9 +91,9 @@ export default definePlugin( {
 			const totalSize = await getFileSize( fileUrl );
 			let downloadSize = 0;
 			const progress = new Progress( "下载 genshin 插件整包资源", totalSize || 0 );
-			
+
 			const startTime = Date.now();
-			
+
 			// 压缩包下载目标路径
 			const zipDownloadPath: string = "genshin/genshin-resource.zip";
 			try {
@@ -114,7 +108,7 @@ export default definePlugin( {
 						if ( totalSize ) {
 							const elapsedTime = ( Date.now() - startTime ) / 1000;
 							const averageSize = downloadSize / elapsedTime;
-							
+
 							const fDownloadSize = formatMemories( downloadSize, "M" );
 							const fTotalSize = formatMemories( totalSize, "M" );
 							const fAverageSize = formatMemories( averageSize, averageSize < 1024 * 1024 ? "KB" : "M" );
@@ -196,7 +190,7 @@ export default definePlugin( {
 		metaManagement = new m.MetaManagement( param.file, param.logger );
 		/* 初始化 meta 监听器 */
 		metaManagement.watchStart();
-		
+
 		const cookieCfg = param.configRegister( "cookies", {
 			cookies: [ "米游社Cookies(允许设置多个)" ]
 		} );
@@ -208,6 +202,8 @@ export default definePlugin( {
 		initModules( cookieCfg.cookies );
 	},
 	async unmounted() {
+		/* 清空全部定时任务 */
+		scheduleHub.clear();
 		/* 清空 meta 事件 */
 		metaManagement.clear();
 		/* 关闭 meta 监听器 */

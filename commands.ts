@@ -168,7 +168,7 @@ const almanac: OrderConfig = {
 const panel: OrderConfig = {
 	type: "order",
 	cmdKey: "marry-dream.panel",
-	desc: [ "详情", "[角色](UID|@)" ],
+	desc: [ "面板", "[角色](UID|@)" ],
 	headers: [ "panel" ],
 	regexps: [
 		[ "[\\u4e00-\\u9fa5]+", "(\\d{9})?" ],
@@ -181,7 +181,7 @@ const panel: OrderConfig = {
 const panelUpdate: OrderConfig = {
 	type: "order",
 	cmdKey: "marry-dream.panel-update",
-	desc: [ "更新详情", "(UID|@|-c)" ],
+	desc: [ "更新面板", "(UID|@|-c)" ],
 	headers: [ "pud" ],
 	regexps: [
 		[ "(\\d{9})?" ],

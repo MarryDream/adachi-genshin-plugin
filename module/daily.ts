@@ -1,6 +1,5 @@
 import bot from "ROOT"
 import { getRealName, NameResult } from "../utils/name";
-import { scheduleJob } from "node-schedule";
 import { isCharacterInfo, isWeaponInfo, InfoResponse, CalendarData, InfoMaterial } from "../types";
 import { RenderResult } from "@/modules/renderer";
 import { metaManagement, renderer } from "#/genshin/init";
@@ -11,6 +10,7 @@ import { DailyMaterial } from "#/genshin/types/ossMeta";
 import { getRandomNumber } from "@/utils/random";
 import { DailyInfo } from "#/genshin/types/daily";
 import { getInfo } from "#/genshin/utils/local-assets";
+import { scheduleHub } from "#/genshin/utils/schedule-hub";
 
 export type DailyDataMaterial = {
 	[K in keyof DailyMaterial]: InfoResponse[]
@@ -85,15 +85,15 @@ export class DailyClass {
 			this.allData = { "Mon&Thu": [], "Tue&Fri": [], "Wed&Sat": [] };
 		} );
 
-		scheduleJob( "0 2 12 * * *", async () => {
+		scheduleHub.on( "0 2 12 * * *", async () => {
 			this.eventData = await calendarPromise();
 		} );
 
-		scheduleJob( "0 2 16 * * *", async () => {
+		scheduleHub.on( "0 2 16 * * *", async () => {
 			this.eventData = await calendarPromise();
 		} );
 
-		scheduleJob( "0 0 6 * * *", async () => {
+		scheduleHub.on( "0 0 6 * * *", async () => {
 			const date: Date = new Date();
 
 			/* 获取当日副本对应的角色和武器 */
@@ -138,7 +138,7 @@ export class DailyClass {
 				const randomMinute: number = getRandomNumber( 3, 59 );
 				date.setMinutes( randomMinute );
 
-				scheduleJob( date, async () => {
+				scheduleHub.on( date, async () => {
 					await bot.client.sendPrivateMsg( userID, res.data );
 				} );
 			}
