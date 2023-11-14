@@ -4,11 +4,6 @@ import { characterInfoPromise, detailInfoPromise } from "#/genshin/utils/promise
 import { config, renderer } from "#/genshin/init";
 import { isAt, getUID } from "#/genshin/utils/message";
 
-interface UIDResult {
-	info: number | string;
-	stranger: boolean;
-}
-
 export default defineDirective( "order", async ( { sendMessage, messageData, matchResult, redis } ) => {
 	const data: string = matchResult.match[0];
 	const atID: string | undefined = isAt( data );

@@ -10,7 +10,7 @@ interface UIDResult {
 }
 
 export function isAt( message: string ): string | undefined {
-	const res: RegExpExecArray | null = /\[cq:at,qq=(?<id>\d+)/.exec( message );
+	const res: RegExpExecArray | null = /\[CQ:at,qq=(?<id>\d+)/.exec( message );
 	return res?.groups?.id;
 }
 

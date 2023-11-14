@@ -7,18 +7,18 @@ import { Panel } from "#/genshin/types";
 import { isAt, getUID } from "#/genshin/utils/message";
 
 export default defineDirective( "order", async ( { sendMessage, messageData, matchResult, redis, logger } ) => {
-	const [ name, uidStr, atMsg ] = matchResult.match;
+	const [ name, uidStrOrAtMsg ] = matchResult.match;
+	const atID: string | undefined = isAt( uidStrOrAtMsg );
 
-	if ( !config.panel.uidQuery && uidStr ) {
+	if ( !config.panel.uidQuery && uidStrOrAtMsg && !atID ) {
 		await sendMessage( "bot 持有者已关闭 uid 查询功能" );
 		return;
 	}
 
-	const atID: string | undefined = isAt( atMsg );
 	const userID: number = messageData.user_id;
 
 	/* 检查是否绑定了uid */
-	const { info, stranger, self } = await getUID( uidStr || atMsg, userID, redis, atID );
+	const { info, stranger, self } = await getUID( uidStrOrAtMsg, userID, redis, atID );
 
 	if ( typeof info === "string" ) {
 		await sendMessage( info );
