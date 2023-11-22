@@ -14,7 +14,7 @@ export class NoteService implements Service {
 	private timePoint: number[];
 	private globalEvent?: Job;
 	private globalData: Note | string = "";
-	private readonly pushEventName: string = "notePush";
+	private readonly pushEventName: string;
 	private readonly feedbackCatch: () => Promise<void>;
 
 	public FixedField = <const>"note";
@@ -25,6 +25,7 @@ export class NoteService implements Service {
 			p.options[NoteService.FixedField] || {};
 
 		this.parent = p;
+		this.pushEventName = `notePush-${ p.setting.userID }-${ p.id }`;
 		this.timePoint = options.timePoint || [ 120, 155 ];
 		this.enable = options.enable === undefined
 			? true : options.enable;
