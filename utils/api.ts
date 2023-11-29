@@ -32,7 +32,7 @@ const apis = {
 	//验证码服务相关
 	FETCH_CREATE_VERIFICATION: "https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/createVerification",
 	FETCH_GEETEST: "https://api.geetest.com/gettype.php",
-	FETCH_GET_VERIFY: "https://challenge.minigg.cn",
+	FETCH_GET_VERIFY: "https://api.fuckmys.tk/geetest",
 	FETCH_VERIFY_VERIFICATION: "https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/verifyVerification",
 	/* Token转换相关 */
 	FETCH_GET_MULTI_TOKEN: "https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket",
