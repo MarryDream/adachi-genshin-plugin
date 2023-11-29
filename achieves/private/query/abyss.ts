@@ -4,7 +4,6 @@ import { Abyss } from "#/genshin/types";
 import { segment, ForwardElem } from "@/modules/lib";
 import { RenderResult } from "@/modules/renderer";
 import { getPrivateAccount } from "#/genshin/utils/private";
-import { getRegion } from "#/genshin/utils/region";
 import { abyssInfoPromise } from "#/genshin/utils/promise";
 import { renderer } from "#/genshin/init";
 
@@ -57,7 +56,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 			continue;
 		}
 		content.messages.push( {
-			uin: client.uin,
+			user_id: client.uin,
 			content: segment.image( <string>res.data )
 		} );
 	}
