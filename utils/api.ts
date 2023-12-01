@@ -24,8 +24,8 @@ const apis = {
 	FETCH_GACHA_LIST: "https://operation-webstatic.mihoyo.com/gacha_info/hk4e/cn_gf01/gacha/list.json",
 	FETCH_GACHA_DETAIL: "https://operation-webstatic.mihoyo.com/gacha_info/hk4e/cn_gf01/$/zh-cn.json",
 	
-	FETCH_SIGN_IN: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign",
-	FETCH_SIGN_INFO: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/info",
+	FETCH_SIGN_IN: "https://api-takumi.mihoyo.com/event/luna/sign",
+	FETCH_SIGN_INFO: "https://api-takumi.mihoyo.com/event/luna/info",
 	FETCH_LEDGER: "https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo",
 	FETCH_CALENDAR_LIST: "https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/getAnnList",
 	FETCH_CALENDAR_DETAIL: "https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/getAnnContent",
@@ -356,18 +356,28 @@ export async function getCalendarDetail(): Promise<ResponseBody<ApiType.Calendar
 }
 
 /* 参考 https://github.com/DGP-Studio/DGP.Genshin.MiHoYoAPI/blob/main/Sign/SignInProvider.cs */
-const activityID: string = "e202009291139501";
+const activityID: string = "e202311201442471";
 
 async function getSignHeaders( uid: string, cookie: string, ds = true ) {
 	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
 	return {
+		Host: "api-takumi.mihoyo.com",
+		Connection: "keep-alive",
+		"x-rpc-signgame": "hk4e",
+		Accept: "application/json, text/plain, */*",
+		Origin: "https://act.mihoyo.com",
+		"X-Requested-With": "com.mihoyo.hyperion",
+		"Sec-Fetch-Site": "same-site",
+		"Sec-Fetch-Mode": "cors",
+		"Sec-Fetch-Dest": "empty",
+		Referer: "https://act.mihoyo.com/",
+		"Accept-Encoding": "gzip, deflate",
+		"Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
 		"content-type": "application/json",
 		"x-rpc-app_version": "2.40.1",
 		"x-rpc-device_id": device_id,
 		"x-rpc-client_type": "5",
 		"User-Agent": `Mozilla/5.0 (Linux; Android 12; ADC-${ deviceName }) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
-		Referer: 'https://webstatic.mihoyo.com',
-		"X-Requested-With": "com.mihoyo.hyperion",
 		"x-rpc-platform": "android",
 		"x-rpc-device_model": "Mi 10",
 		"x-rpc-device_name": deviceName,
