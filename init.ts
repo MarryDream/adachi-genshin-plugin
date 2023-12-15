@@ -74,8 +74,18 @@ export default definePlugin( {
 		"components",
 		"front-utils",
 		"assets",
-		"adachi-assets"
+		"adachi-assets",
+		"adachi-lib"
 	],
+	cdnLib: {
+		libs: {
+			"vue.esm-browser.prod.js": "https://mari-files.oss-cn-beijing.aliyuncs.com/lib/vue%403.2.47/vue.esm-browser.prod.js",
+			"moment.min.js": "https://mari-files.oss-cn-beijing.aliyuncs.com/lib/momentjs%402.29.1/moment.min.js",
+			"moment-zh-cn.js": "https://mari-files.oss-cn-beijing.aliyuncs.com/lib/momentjs%402.29.1/locale/zh-cn.js",
+			"panel-iconpark.js": "https://mari-files.oss-cn-beijing.aliyuncs.com/lib/iconpark/panel-iconpark.js",
+			"echarts.esm.js": "https://mari-files.oss-cn-beijing.aliyuncs.com/lib/echarts%405.4.2/echarts.esm.js"
+		}
+	},
 	assets: {
 		manifestUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com/adachi-bot/version3/genshin_assets_manifest.yml",
 		downloadBaseUrl: "https://mari-files.oss-cn-beijing.aliyuncs.com",

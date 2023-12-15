@@ -13,6 +13,7 @@ dist
 
 # adachi
 /adachi-assets/
+/adachi-lib/
 
 # Editor directories and files
 .vscode/*
