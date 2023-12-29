@@ -2,7 +2,7 @@ import bot from "ROOT";
 import { metaManagement } from "#/genshin/init";
 
 export interface AliasMap {
-	[ P: string ]: {
+	[P: string]: {
 		realName: string;
 		aliasNames: string[];
 	}
@@ -18,15 +18,15 @@ export class AliasClass {
 	private get metaData(): Map<string, string> {
 		const metaData = new Map();
 		const alias: AliasMap = metaManagement.getMeta( "meta/alias" );
-		for ( let el of Object.values(alias).flat() ) {
+		for ( let el of Object.values( alias ).flat() ) {
 			for ( let alias of el.aliasNames ) {
-				metaData.set( alias, el.realName );
+				metaData.set( alias.toString(), el.realName );
 			}
 		}
 		return metaData;
 	}
 	
-	private async setDbData()  {
+	private async setDbData() {
 		const dbData = new Map();
 		const added: string[] = await bot.redis.getKeysByPrefix( "silvery-star.alias-add-" );
 		for ( let key of added ) {
@@ -57,6 +57,10 @@ export class AliasClass {
 		await bot.redis.addListElement( `silvery-star.alias-remove`, alias );
 		await bot.redis.delListElement( `silvery-star.alias-add-${ realName }`, alias );
 		await this.setDbData();
+	}
+	
+	public getAllAliasKey() {
+		return [ ...this.metaData.keys(), ...this.dbData.keys() ];
 	}
 	
 	public search( name: string ): string | undefined {
