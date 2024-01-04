@@ -75,8 +75,11 @@
 	box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .15);
 }
 
+.room > .room-content > .chara-list > li > .chara-box {
+	flex: 1;
+}
+
 .room > .room-content > .chara-list > li:first-child > .chara-box {
-	width: 25%;
 	position: relative;
 	left: 6px;
 }
