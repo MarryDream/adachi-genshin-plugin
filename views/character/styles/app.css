@@ -24,9 +24,8 @@
 	bottom: 0;
 	border: 40px solid;
 	border-image: url("/genshin/adachi-assets/resource/common/base-border.webp") 55 fill;
-	background: url('/genshin/adachi-assets/resource/common/stand-bg.webp') center 105px no-repeat,
-	url("/genshin/adachi-assets/resource/common/base-bg.webp");
-	background-size: 523px 518px, auto;
+	background: url('/genshin/adachi-assets/resource/common/stand-bg.webp') center 105px/523px 518px no-repeat,
+		url("/genshin/adachi-assets/resource/common/base-bg.webp") 0 0/auto;
 	filter: hue-rotate(var(--hue-rotate));
 }
 
@@ -54,10 +53,11 @@
 	position: absolute;
 	width: 100%;
 	left: 50%;
-	top: 152px;
+	top: 110px;
 	transform: translateX(-50%);
 	text-align: center;
 	opacity: 0.8;
+	-webkit-mask: linear-gradient( to right, transparent 0%, #000 10%, #000 90%, transparent 100% );
 }
 
 .character-base > main > .portrait-box > .portrait {
