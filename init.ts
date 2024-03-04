@@ -9,6 +9,7 @@ import Progress from "@/utils/progress";
 import { formatMemories } from "@/utils/format";
 import { Logger } from "log4js";
 import { scheduleHub } from "#/genshin/utils/schedule-hub";
+import os from "os";
 
 const initConfig = {
 	card: {
@@ -144,7 +145,13 @@ export default definePlugin( {
 				}
 			}
 			gLogger.info( "开始解压资源包..." );
-			const { status: unCompressStatus } = await file.unCompressFile( "zip", zipDownloadPath, zipUnCompressPath, "plugin" );
+			const { status: unCompressStatus } = await file.unCompressFile(
+				"zip",
+				zipDownloadPath,
+				zipUnCompressPath,
+				"plugin",
+				os.type() === "Darwin" ? "UTF8" : "GBK"
+			);
 			if ( !unCompressStatus ) {
 				gLogger.error( "解压资源包失败，请尝试手动解压替换" );
 				return;
