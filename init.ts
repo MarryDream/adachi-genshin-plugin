@@ -9,6 +9,8 @@ import Progress from "@/utils/progress";
 import { formatMemories } from "@/utils/format";
 import { Logger } from "log4js";
 import { scheduleHub } from "#/genshin/utils/schedule-hub";
+import { DownloadCalculator } from "#/genshin/utils/downloadCalculator";
+import os from "os";
 
 const initConfig = {
 	card: {
@@ -98,38 +100,40 @@ export default definePlugin( {
 			gLogger.info( "待更新资源数量超出限制，开始下载压缩资源包..." );
 			// 超出时下载整包资源
 			const fileUrl = "https://mari-files.oss-cn-beijing.aliyuncs.com/adachi-bot/version3/genshin-resource.zip";
+			const zipDownloadPath: string = "genshin/genshin-resource.zip";
+			
 			const totalSize = await getFileSize( fileUrl );
 			let downloadSize = 0;
+			
 			const progress = new Progress( "下载 genshin 插件整包资源", totalSize || 0 );
-
-			const startTime = Date.now();
+			const downloadCalculator = new DownloadCalculator();
 
 			// 压缩包下载目标路径
-			const zipDownloadPath: string = "genshin/genshin-resource.zip";
+			downloadCalculator.startDownload( speed => {
+				if ( !totalSize ) {
+					progress.setTotal( downloadSize );
+				}
+				// 下载进度条
+				progress.renderer( downloadSize, () => {
+					if ( totalSize ) {
+						const fDownloadSize = formatMemories( downloadSize, "M" );
+						const fTotalSize = formatMemories( totalSize, "M" );
+						const fSpeed = formatMemories( speed, speed < 1024 * 1024 ? "KB" : "M" );
+						return `${ fDownloadSize }/${ fTotalSize } ${ fSpeed }/s`;
+					}
+					return formatMemories( downloadSize, "M" );
+				} );
+			} );
 			try {
 				await file.downloadFileStream( fileUrl, zipDownloadPath, "plugin", chunk => {
-					const curLength = chunk.length;
-					downloadSize += curLength;
-					if ( !totalSize ) {
-						progress.setTotal( downloadSize );
-					}
-					// 下载进度条
-					progress.renderer( downloadSize, () => {
-						if ( totalSize ) {
-							const elapsedTime = ( Date.now() - startTime ) / 1000;
-							const averageSize = downloadSize / elapsedTime;
-
-							const fDownloadSize = formatMemories( downloadSize, "M" );
-							const fTotalSize = formatMemories( totalSize, "M" );
-							const fAverageSize = formatMemories( averageSize, averageSize < 1024 * 1024 ? "KB" : "M" );
-							return `${ fDownloadSize }/${ fTotalSize } ${ fAverageSize }/s`;
-						}
-						return formatMemories( downloadSize, "M" );
-					} )
+					downloadCalculator.addChunk( chunk );
+					downloadSize += chunk.length;
 				} );
 			} catch ( error ) {
 				gLogger.error( "资源包下载失败:" + ( <Error>error ).stack );
 				throw error;
+			} finally {
+				downloadCalculator.stopDownload();
 			}
 			// 压缩包解压目标路径
 			const zipUnCompressPath = `${ pluginKey }/${ assets.folderName || "adachi-assets" }`;

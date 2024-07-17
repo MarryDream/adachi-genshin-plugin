@@ -103,7 +103,11 @@ export default defineComponent( {
 			initEcharts();
 
 			if ( document.readyState !== "complete" ) {
-				window.addEventListener( "load", () => initEcharts );
+				document.addEventListener( "readystatechange", () => {
+					if ( document.readyState === "complete" ) {
+						myCharts.value?.resize();
+					}
+				} );
 			}
 
 			window.addEventListener( "resize", () => {
