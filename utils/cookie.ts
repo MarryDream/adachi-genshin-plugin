@@ -2,12 +2,7 @@ import bot from "ROOT";
 import { Order } from "@/modules/command";
 import { AuthLevel } from "@/modules/management/auth";
 import { cookies } from "#/genshin/init";
-import {
-	ErrorMsg,
-	getCookieTokenBySToken, getLtoken,
-	getMidByLtoken,
-	getMultiToken
-} from "#/genshin/utils/promise";
+import { ErrorMsg, getCookieTokenBySToken, getLtoken, getMidByLtoken, getMultiToken } from "#/genshin/utils/promise";
 import { getBaseInfo } from "#/genshin/utils/api";
 import * as ApiType from "#/genshin/types";
 import { Cookies } from "#/genshin/module";
@@ -150,25 +145,13 @@ export async function refreshTokenBySToken( pri: Private ): Promise<FilterMysCoo
 }
 
 export function cookie2Obj( cookie: string ): any {
-	return decodeURIComponent( cookie )
-		.replace( /[^(\w|=|;|\-)+$]/g, "" ) //去除 除字母，数字，下划线，=，；和空白的所有值
-		.split( /;/ )
-		.map( value => value.trim() )
-		.filter( value => value !== '' )
-		.map( item => {
-			return splitCookie( item, "=" );
-		} )
-		.reduce( ( acc, [ k, v ] ) => ( acc[k.trim().replace( '"', '' )] = v ) && acc, {} );
-}
-
-function splitCookie( raw: string, splitter: string ): string[] {
-	const result: string[] = [];
-	for ( let i = 0; i < raw.length; i++ ) {
-		if ( raw.charAt( i ) === splitter ) {
-			result.push( raw.slice( 0, i ) );
-			result.push( raw.slice( i + 1, raw.length ) );
-			return result;
-		}
-	}
-	return result;
+	return decodeURIComponent( cookie ).split( ";" )
+		.filter( item => !!item && item.trim().length > 0 )
+		.reduce( ( acc, item ) => {
+			// 处理V2 Cookie，仅处理第一个=号
+			const delimiter = item.indexOf( '=' );
+			const key = item.substring( 0, delimiter ).trim();
+			acc[key] = item.substring( delimiter + 1 ).trim();
+			return acc;
+		}, {} );
 }
