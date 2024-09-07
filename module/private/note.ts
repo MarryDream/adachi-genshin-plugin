@@ -123,6 +123,7 @@ export class NoteService implements Service {
 		try {
 			const setting: UserInfo = this.parent.setting;
 			this.globalData = <Note>await dailyNotePromise(
+				setting.userID,
 				setting.uid,
 				setting.cookie
 			);

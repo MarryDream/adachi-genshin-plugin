@@ -265,6 +265,29 @@ const privateReorder: OrderConfig = {
 		"例如用户有 5 个订阅的私人服务账号，则新排序列表的格式为：5 2 3 1 4"
 };
 
+const privateBindDevice: EnquireConfig = {
+	type: "enquire",
+	cmdKey: "adachi.device-bind",
+	desc: [ "绑定设备", "" ],
+	headers: [ "device_bind" ],
+	main: "achieves/private/device/bind",
+	scope: MessageScope.Private,
+	ignoreCase: false,
+	timeout: 180,
+	detail: "若获取米游社信息时出现问题，可尝试通关此操作解决"
+};
+
+const privateUnBindDevice: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi.device-unbind",
+	desc: [ "解绑设备", "" ],
+	headers: [ "device_unbind" ],
+	regexps: [],
+	main: "achieves/private/device/unbind",
+	scope: MessageScope.Private,
+	detail: "删除该账户绑定的设备信息"
+};
+
 const privateNowNote: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star.now-note",
@@ -375,5 +398,6 @@ export default <ConfigType[]>[
 	privateSubscribe, privateReplace, privateCancel,
 	privateRemove, privateSubList, privateReorder,
 	privateToggleSign, privateToggleNote, privateNoteEvent,
+	privateBindDevice, privateUnBindDevice,
 	privateNowNote, privateAbyssQuery, privateLedger
 ];

@@ -10,9 +10,10 @@ import { config } from "#/genshin/init";
 import { register } from "@/utils/request";
 import { getMiHoYoRandomStr } from "./random";
 import { getRandomString, getRandomNumber, randomSleep } from "@/utils/random";
-import { accelerometer, batteryStatus, deviceFp, magnetometer } from "./device-fp";
+import { getDeviceRequestBody } from "./device-fp";
 import { getRegion } from "#/genshin/utils/region";
 import { ErrorMsg } from "#/genshin/utils/promise";
+import { IDeviceData, IFpData } from "#/genshin/types/device";
 
 const apis = {
 	FETCH_ROLE_ID: "https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard",
@@ -41,25 +42,29 @@ const apis = {
 	FETCH_GET_LTOKEN_BY_STOKEN: "https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken",
 	/* 获取device_fp */
 	FETCH_GET_DEVICE_FP: "https://public-data-api.mihoyo.com/device-fp/api/getFp",
+	FETCH_DEVICE_LOGIN: "https://bbs-api.miyoushe.com/apihub/api/deviceLogin",
+	FETCH_SAVE_DEVICE: "https://bbs-api.miyoushe.com/apihub/api/saveDevice",
 	/* enka */
 	FETCH_ENKA_CHARA_DETAIL: "api/uid/$"
 };
 
-const deviceName = getRandomString( 5 );
 
-const HEADERS = {
-	"User-Agent": `Mozilla/5.0 (Mozilla/5.0 (Linux; Android 12; ADC-${ deviceName }) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
-	"Referer": "https://webstatic.mihoyo.com",
-	"Origin": 'https://webstatic.mihoyo.com',
-	"X_Requested_With": 'com.mihoyo.hyperion',
-	"x-rpc-app_version": "2.40.1",
-	"x-rpc-client_type": 5,
-	"DS": "",
-	"Cookie": "",
-	"x-rpc-device_id": "",
-	"x-rpc-device_fp": "",
-	"x-rpc-app_id": "bll8iq97cem8"
-};
+function getCommonHeaders( cookie?: string, ds?: string, deviceId = "", deviceFp = "" ) {
+	const headers: Record<string, any> = {
+		"User-Agent": "Mozilla/5.0 (Linux; Android 11; J9110 Build/55.2.A.4.332; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/124.0.6367.179 Mobile Safari/537.36 miHoYoBBS/2.73.1",
+		"Referer": "https://act.mihoyo.com/",
+		"Origin": "https://act.mihoyo.com",
+		"x-rpc-app_version": "2.73.1",
+		'x-rpc-sys_version': '12',
+		'x-rpc-client_type': '2',
+		'x-rpc-channel': 'mihoyo',
+		"x-rpc-device_id": deviceId,
+		"x-rpc-device_fp": deviceFp
+	}
+	cookie && ( headers.Cookie = cookie );
+	ds && ( headers.DS = ds );
+	return headers;
+}
 
 const verifyMsg = "API请求遭遇验证码拦截，可以尝试联系Master开启验证服务";
 
@@ -78,11 +83,7 @@ export async function getBaseInfo(
 ): Promise<ResponseBody<ApiType.BBS>> {
 	const query = { uid: mysID };
 	const { data: result } = await $https.FETCH_ROLE_ID.get( query, {
-		headers: {
-			...HEADERS,
-			DS: getDS( query ),
-			Cookie: cookie
-		}
+		headers: getCommonHeaders( cookie, getDS( query ) )
 	} )
 	const data: ResponseBody<ApiType.BBS> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -98,6 +99,7 @@ export async function getBaseInfo(
 }
 
 export async function getDetailInfo(
+	userId: number | string,
 	uid: number,
 	cookie: string,
 	time: number = 0,
@@ -108,15 +110,9 @@ export async function getDetailInfo(
 		role_id: uid,
 		server
 	};
-	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_ROLE_INDEX.get( query, {
-		headers: {
-			...HEADERS,
-			DS: getDS( query ),
-			Cookie: cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: getCommonHeaders( cookie, getDS( query ), device_id, device_fp )
 	} );
 	const data: ResponseBody<ApiType.UserInfo> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -126,12 +122,13 @@ export async function getDetailInfo(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][detail] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getDetailInfo( uid, cookie, ++time, verifyResult );
+		return await getDetailInfo( userId, uid, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[detail] " + verifyResult : verifyMsg;
 }
 
 export async function getCharactersInfo(
+	userId: number | string,
 	uid: number,
 	charIDs: number[],
 	cookie: string,
@@ -146,15 +143,11 @@ export async function getCharactersInfo(
 		server
 	};
 	
-	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_ROLE_CHARACTERS.post( body, {
 		headers: {
-			...HEADERS,
-			DS: getDS( undefined, JSON.stringify( body ) ),
-			Cookie: cookie,
-			"content-type": "application/json",
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
+			...getCommonHeaders( cookie, getDS( body ), device_id, device_fp ),
+			"content-type": "application/json"
 		}
 	} );
 	
@@ -166,12 +159,13 @@ export async function getCharactersInfo(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][char] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getCharactersInfo( uid, charIDs, cookie, ++time, verifyResult );
+		return await getCharactersInfo( userId, uid, charIDs, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[char] " + verifyResult : verifyMsg;
 }
 
 export async function getDailyNoteInfo(
+	userId: number | string,
 	uid: number,
 	cookie: string,
 	time: number = 0,
@@ -182,15 +176,9 @@ export async function getDailyNoteInfo(
 		role_id: uid,
 		server
 	};
-	const [ device_id, device_fp ] = await getDeviceFp( `${ uid }`, cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_ROLE_DAILY_NOTE.get( query, {
-		headers: {
-			...HEADERS,
-			DS: getDS( query ),
-			"Cookie": cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: getCommonHeaders( cookie, getDS( query ), device_id, device_fp )
 	} )
 	const data: ResponseBody<ApiType.Note> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -200,12 +188,13 @@ export async function getDailyNoteInfo(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][note] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getDailyNoteInfo( uid, cookie, ++time, verifyResult );
+		return await getDailyNoteInfo( userId, uid, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[note] " + verifyResult : verifyMsg;
 }
 
 export async function getAvatarDetailInfo(
+	userId: number | string,
 	uid: string,
 	avatarID: number,
 	cookie: string,
@@ -218,15 +207,9 @@ export async function getAvatarDetailInfo(
 		region: server,
 		uid
 	};
-	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_ROLE_AVATAR_DETAIL.get( query, {
-		headers: {
-			...HEADERS,
-			"DS": getDS( query ),
-			"Cookie": cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: getCommonHeaders( cookie, getDS( query ), device_id, device_fp )
 	} );
 	const data: ResponseBody<ApiType.AvatarDetailRaw> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -236,13 +219,14 @@ export async function getAvatarDetailInfo(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][avatar] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getAvatarDetailInfo( uid, avatarID, cookie, ++time, verifyResult );
+		return await getAvatarDetailInfo( userId, uid, avatarID, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[avatar] " + verifyResult : verifyMsg;
 }
 
 /* period 为 1 时表示本期深渊，2 时为上期深渊 */
 export async function getSpiralAbyssInfo(
+	userId: number | string,
 	uid: number,
 	period: number,
 	cookie: string,
@@ -255,15 +239,9 @@ export async function getSpiralAbyssInfo(
 		schedule_type: period,
 		server
 	};
-	const [ device_id, device_fp ] = await getDeviceFp( uid.toString(), cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_ROLE_SPIRAL_ABYSS.get( query, {
-		headers: {
-			...HEADERS,
-			DS: getDS( query ),
-			Cookie: cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: getCommonHeaders( cookie, getDS( query ), device_id, device_fp )
 	} )
 	const data: ResponseBody<ApiType.Abyss> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -273,12 +251,13 @@ export async function getSpiralAbyssInfo(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][abyss] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getSpiralAbyssInfo( uid, period, cookie, ++time, verifyResult );
+		return await getSpiralAbyssInfo( userId, uid, period, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[abyss] " + verifyResult : verifyMsg;
 }
 
 export async function getLedger(
+	userId: number | string,
 	uid: string,
 	mon: number,
 	cookie: string,
@@ -292,14 +271,9 @@ export async function getLedger(
 		month: mon
 	};
 	
-	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	const { data: result } = await $https.FETCH_LEDGER.get( query, {
-		headers: {
-			...HEADERS,
-			Cookie: cookie,
-			"x-rpc-device_id": device_id,
-			"x-rpc-device_fp": device_fp
-		}
+		headers: getCommonHeaders( cookie, undefined, device_id, device_fp )
 	} );
 	const data: ResponseBody<ApiType.Ledger> = toCamelCase( result );
 	if ( data.retcode !== 1034 ) {
@@ -309,7 +283,7 @@ export async function getLedger(
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
 		bot.logger.debug( `[ UID${ uid } ][ledger] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
-		return await getLedger( uid, mon, cookie, ++time, verifyResult );
+		return await getLedger( userId, uid, mon, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[ledger] " + verifyResult : verifyMsg;
 }
@@ -358,8 +332,9 @@ export async function getCalendarDetail(): Promise<ResponseBody<ApiType.Calendar
 /* 参考 https://github.com/DGP-Studio/DGP.Genshin.MiHoYoAPI/blob/main/Sign/SignInProvider.cs */
 const activityID: string = "e202311201442471";
 
-async function getSignHeaders( uid: string, cookie: string, ds = true ) {
-	const [ device_id, device_fp ] = await getDeviceFp( uid, cookie );
+async function getSignHeaders( userId: number | string, cookie: string, ds = true ) {
+	const deviceName = getRandomString( 5 );
+	const { device_id, device_fp } = await getDeviceFp( userId, cookie );
 	return {
 		Host: "api-takumi.mihoyo.com",
 		Connection: "keep-alive",
@@ -390,14 +365,14 @@ async function getSignHeaders( uid: string, cookie: string, ds = true ) {
 }
 
 /* Sign In API */
-export async function mihoyoBBSSignIn( uid: string, region: string, cookie: string, time: number = 0 ): Promise<ResponseBody<ApiType.SignInResult>> {
+export async function mihoyoBBSSignIn( userId: number | string, uid: string, region: string, cookie: string, time: number = 0 ): Promise<ResponseBody<ApiType.SignInResult>> {
 	const body = {
 		act_id: activityID,
 		uid, region
 	};
 	
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
-		headers: await getSignHeaders( uid, cookie )
+		headers: await getSignHeaders( userId, cookie )
 	} );
 	if ( !result.data ) {
 		throw new Error( ErrorMsg.FORM_MESSAGE + ( result.message || "签到 api 异常" ) );
@@ -410,19 +385,19 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 	bot.logger.warn( `[ UID${ uid } ][sign] 签到遇到验证码` );
 	if ( resp.data.gt && resp.data.challenge ) {
 		bot.logger.debug( `[ UID${ uid } ][sign] 遇到验证码，尝试绕过 ~` );
-		return mihoyoBBSVerifySignIn( uid, region, cookie, resp.data.gt, resp.data.challenge );
+		return mihoyoBBSVerifySignIn( userId, uid, region, cookie, resp.data.gt, resp.data.challenge );
 	}
 	throw new Error( `解决签到验证码失败 ${ typeof result === 'string' ? "\n" + result : "" }` );
 }
 
-export async function getSignInInfo( uid: string, region: string, cookie: string ): Promise<ResponseBody<ApiType.SignInInfo>> {
+export async function getSignInInfo( userId: number | string, uid: string, region: string, cookie: string ): Promise<ResponseBody<ApiType.SignInInfo>> {
 	const query = {
 		act_id: activityID,
 		region, uid
 	};
 	
 	const { data: result } = await $https.FETCH_SIGN_INFO.get( query, {
-		headers: await getSignHeaders( uid, cookie, false )
+		headers: await getSignHeaders( userId, cookie, false )
 	} );
 	if ( !result.data ) {
 		throw new Error( result.message );
@@ -439,12 +414,8 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 	if ( !gt || !challenge ) {
 		//获取验证码
 		const { data: createVerify } = await $https.FETCH_CREATE_VERIFICATION.get( { is_high: "true" }, {
-			headers: {
-				...HEADERS,
-				DS: getDS( { is_high: true } ),
-				Cookie: cookie
-			}
-		} )
+			headers: getCommonHeaders( cookie, getDS( { is_high: true } ) )
+		} );
 		if ( !createVerify.data ) {
 			bot.logger.error( "[create]", createVerify );
 			return "[create] 获取验证码失败";
@@ -478,12 +449,8 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 		geetest_seccode: `${ analysisCode.data.validate }|jordan`
 	}
 	const { data: verifyResult } = await $https.FETCH_VERIFY_VERIFICATION.post( body, {
-		headers: {
-			...HEADERS,
-			DS: getDS( undefined, JSON.stringify( body ) ),
-			Cookie: cookie
-		}
-	} )
+		headers: getCommonHeaders( cookie, getDS( undefined, JSON.stringify( body ) ) )
+	} );
 	/* 验证码过期 */
 	if ( verifyResult.retcode !== 0 || verifyResult.message !== 'OK' ) {
 		bot.logger.error( "[submit]", verifyResult );
@@ -492,7 +459,7 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 	return "";
 }
 
-export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie: string, gt: string, challenge: string ): Promise<ResponseBody<ApiType.SignInResult>> {
+export async function mihoyoBBSVerifySignIn( userId: number | string, uid: string, region: string, cookie: string, gt: string, challenge: string ): Promise<ResponseBody<ApiType.SignInResult>> {
 	const body = {
 		act_id: activityID,
 		uid, region
@@ -515,7 +482,7 @@ export async function mihoyoBBSVerifySignIn( uid: string, region: string, cookie
 	
 	const { data: result } = await $https.FETCH_SIGN_IN.post( body, {
 		headers: {
-			...await getSignHeaders( uid, cookie ),
+			...await getSignHeaders( userId, cookie ),
 			"x-rpc-challenge": verifyCode.data.challenge,
 			"x-rpc-validate": verifyCode.data.validate,
 			"x-rpc-seccode": `${ verifyCode.data.validate }|jordan`
@@ -593,9 +560,8 @@ export async function verifyLtoken( ltoken: string, ltuid: string ): Promise<Res
 	const cookie = `ltoken=${ ltoken }; ltuid=${ ltuid };`;
 	const { data: result } = await $https.FETCH_VERIFY_LTOKEN.post( params, {
 		headers: {
-			...HEADERS,
-			Referer: "https://bbs.mihoyo.com/",
-			cookie: cookie
+			...getCommonHeaders( cookie ),
+			Referer: "https://bbs.mihoyo.com/"
 		},
 		timeout: 5000
 	} );
@@ -610,11 +576,7 @@ export async function getLTokenBySToken( stoken: string, mid: string ): Promise<
 	const cookie = `stoken=${ stoken }; mid=${ mid };`;
 	
 	const { data: result } = await $https.FETCH_GET_LTOKEN_BY_STOKEN.get( {}, {
-		headers: {
-			...HEADERS,
-			cookie: cookie,
-			DS: getDS( undefined, undefined )
-		},
+		headers: getCommonHeaders( cookie, getDS( undefined, undefined ) ),
 		timeout: 5000
 	} );
 	if ( !result.data ) {
@@ -624,51 +586,24 @@ export async function getLTokenBySToken( stoken: string, mid: string ): Promise<
 	
 }
 
-async function getDeviceFp( uid: string, cookie: string ): Promise<string[]> {
-	const key = `adachi.miHoYo-info.${ uid }`;
-	const { device_fp, device_id, idfv, seed_id, seed_time } = await bot.redis.getHash( key );
-	const status = batteryStatus();
-	const IDFV = idfv || guid().toUpperCase();
-	const deviceId = device_id || guid();
-	const seedId = seed_id || getMiHoYoRandomStr( 13 );
-	const seedTime = seed_time || `${ Date.now() }`;
+// 获取设备信息
+export async function getDeviceFp( userId: string | number, cookie: string ): Promise<IFpData> {
+	const fpKey = `adachi.device-fp-${ userId }`;
 	
-	// platform=1 的拓展字段
-	const ext_fields = {
-		IDFV: IDFV,
-		model: 'iPhone16,1',
-		osVersion: '17.0.3',
-		screenSize: '393×852',
-		vendor: '--',
-		cpuType: 'CPU_TYPE_ARM64',
-		cpuCores: '16',
-		isJailBreak: '0',
-		networkType: 'WIFI',
-		proxyStatus: '0',
-		batteryStatus: status.toString( 10 ),
-		chargeStatus: status > 30 ? '0' : '1',
-		romCapacity: `${ getRandomNumber( 100000, 500000 ) }`,
-		romRemain: `${ getRandomNumber( 120000, 130000 ) }`,
-		ramCapacity: `${ getRandomNumber( 1000, 10000 ) }`,
-		ramRemain: `${ getRandomNumber( 8000, 9000 ) }`,
-		appMemory: `${ getRandomNumber( 50, 110 ) }`,
-		accelerometer: accelerometer().join( 'x' ),
-		gyroscope: accelerometer().join( 'x' ),
-		magnetometer: magnetometer().join( 'x' )
-	};
-	const { data: response } = await $https.FETCH_GET_DEVICE_FP.post( {
-		seed_id: seedId,
-		device_id: deviceId,
-		platform: '1',
-		seed_time: seedTime,
-		ext_fields: JSON.stringify( ext_fields ),
-		app_name: 'bbs_cn',
-		device_fp: device_fp || deviceFp()
-	}, {
-		headers: {
-			...HEADERS,
-			"Cookie": cookie
-		}
+	const deviceData: IDeviceData = await bot.redis.getHash( `adachi.device-info-${ userId }` );
+	const fpData = await bot.redis.getHash( fpKey );
+	
+	// 是否存在绑定信息
+	const hasDeviceData = Object.keys( deviceData ).length > 0;
+	// 当存在绑定信息时，若存储的设备信息为手动绑定时直接返回，否则若为随机生成的则重新获取
+	if ( fpData.bind === "true" || ( !hasDeviceData && fpData.bind === "false" ) ) {
+		return { device_id: fpData.device_id, device_fp: fpData.device_fp };
+	}
+	
+	const deviceReqBody = getDeviceRequestBody( hasDeviceData ? deviceData : undefined );
+	const commonHeaders = getCommonHeaders( cookie )
+	const { data: response } = await $https.FETCH_GET_DEVICE_FP.post( deviceReqBody, {
+		headers: commonHeaders
 	} )
 	
 	if ( response.retcode !== 0 ) {
@@ -679,15 +614,38 @@ async function getDeviceFp( uid: string, cookie: string ): Promise<string[]> {
 		return Promise.reject( response.data.msg );
 	}
 	
+	const deviceId = deviceReqBody.device_id;
+	const deviceFp = response.data.device_fp;
 	const data = {
-		idfv: IDFV,
 		device_id: deviceId,
-		device_fp: response.data.device_fp,
-		seed_id: seedId,
-		seed_time: seedTime
+		device_fp: deviceFp,
+		bind: hasDeviceData ? "true" : "false"
 	};
-	bot.redis.setHash( key, data ).catch( reason => bot.logger.error( "[获取device_fp] 存储米游社设备信息报错:", reason ) );
-	return [ deviceId, response.data.device_fp ];
+	await bot.redis.setHash( fpKey, data );
+	await bot.redis.setTimeout( fpKey, 60 * 60 * 24 * 7 );
+	
+	// 若为新绑定设备，继续
+	if ( hasDeviceData ) {
+		const deviceBrand = deviceData.deviceFingerprint?.split( "/" )?.[0];
+		const saveParams = {
+			app_version: '2.73.1',
+			device_id: `${ deviceId }`,
+			device_name: `${ deviceBrand }${ deviceData.deviceModel }`,
+			os_version: '33',
+			platform: 'Android',
+			registration_id: getMiHoYoRandomStr( 19 )
+		}
+		const saveHeaders = { ...commonHeaders, "x-rpc-device_fp": deviceFp }
+		bot.logger.debug( "[获取device_fp] 保存登陆设备信息" );
+		try {
+			const { data: deviceLogin } = await $https.FETCH_DEVICE_LOGIN.post( saveParams, { headers: saveHeaders } );
+			const { data: saveDevice } = await $https.FETCH_SAVE_DEVICE.post( saveParams, { headers: saveHeaders } );
+			bot.logger.debug( `[获取device_fp] 设备登陆完成 ${ JSON.stringify( [ deviceLogin, saveDevice ] ) }` );
+		} catch ( error ) {
+			bot.logger.error( "[获取device_fp] 存储米游社设备信息报错:", error );
+		}
+	}
+	return { device_id: deviceId, device_fp: deviceFp };
 }
 
 /* enka */

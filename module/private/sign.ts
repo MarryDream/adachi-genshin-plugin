@@ -60,14 +60,14 @@ export class SignInService implements Service {
 
 
 	private async sign( reply: boolean = true, tryTime: number = 0 ): Promise<void> {
-		const { uid, server, cookie } = this.parent.setting;
+		const { userID, uid, server, cookie } = this.parent.setting;
 		try {
-			const info = <SignInInfo>( await signInInfoPromise( uid, server, cookie ) );
+			const info = <SignInInfo>( await signInInfoPromise( userID, uid, server, cookie ) );
 			if ( info.isSign ) {
 				reply ? await this.parent.sendMessage( "您今天已在米游社签到" ) : "";
 				return;
 			}
-			await signInResultPromise( uid, server, cookie );
+			await signInResultPromise( userID, uid, server, cookie );
 			await this.parent.sendMessage(
 				`[UID${ uid }] - 今日签到完成，本月累计签到 ${ info.totalSignDay + 1 } 天`
 			);

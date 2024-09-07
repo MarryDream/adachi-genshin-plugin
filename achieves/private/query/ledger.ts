@@ -11,39 +11,39 @@ function monthCheck( m: number ) {
 		optional.push( n );
 		n = n - 1 <= 0 ? 12 : n - 1;
 	}
-	
+
 	return m > 12 || m < 1 || !optional.includes( m );
 }
 
 export default defineDirective( "order", async ({ sendMessage, messageData, matchResult, auth, logger }) => {
 	const userID: number = messageData.user_id;
-	
+
 	const [ idMsg, monthStr  ] = matchResult.match;
-	
+
 	/* 设置默认月份 */
 	const month = Number.parseInt( monthStr ) || new Date().getMonth() + 1;
-	
+
 	if ( monthCheck( month ) ) {
 		await sendMessage( `无法查询 ${ month } 月的札记数据` );
 		return;
 	}
-	
+
 	const info: Private | string = await getPrivateAccount( userID, idMsg, auth );
 	if ( typeof info === "string" ) {
 		await sendMessage( info );
 		return;
 	}
-	
+
 	const { cookie, uid } = info.setting;
 	try {
-		await ledgerPromise( uid, month, cookie );
+		await ledgerPromise( userID, uid, month, cookie );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );
 			return;
 		}
 	}
-	
+
 	const res: RenderResult = await renderer.asSegment( "/ledger/index.html", { uid } );
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );

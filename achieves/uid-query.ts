@@ -21,7 +21,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	try {
 		await redis.setHash( `silvery-star.card-data-${ uid }`, { uid } );
 		await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
-		const charIDs = <number[]>await detailInfoPromise( uid );
+		const charIDs = <number[]>await detailInfoPromise( userID, uid );
 		await characterInfoPromise( target, charIDs );
 	} catch ( error ) {
 		if ( error !== "gotten" ) {

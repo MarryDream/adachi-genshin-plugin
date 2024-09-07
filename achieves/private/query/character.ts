@@ -57,7 +57,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 	try {
 		const dbKey: string = `silvery-star.character-temp-${ userID }`;
 		const skills: Skills = await mysAvatarDetailInfoPromise(
-			uid, charInfo.id, cookie, charInfo.constellations
+			userID, uid, charInfo.id, cookie, charInfo.constellations
 		);
 
 		const coefficients: number[] = [ 20, 15, 30, 35 ];

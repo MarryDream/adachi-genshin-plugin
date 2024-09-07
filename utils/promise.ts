@@ -86,6 +86,7 @@ export async function baseInfoPromise(
 }
 
 export async function detailInfoPromise(
+	userId: number | string,
 	uid: number,
 	cookie: string = ""
 ): Promise<number[]> {
@@ -102,7 +103,7 @@ export async function detailInfoPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	const { retcode, message, data } = await api.getDetailInfo( uid, cookie );
+	const { retcode, message, data } = await api.getDetailInfo( userId, uid, cookie );
 
 	const allHomes = metaManagement.getMeta( "meta/home" );
 
@@ -145,7 +146,7 @@ export async function characterInfoPromise(
 	if ( cookie.length === 0 ) {
 		cookie = cookies.get();
 	}
-	const { retcode, message, data } = await api.getCharactersInfo( uid, charIDs, cookie );
+	const { retcode, message, data } = await api.getCharactersInfo( userID, uid, charIDs, cookie );
 
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -233,17 +234,18 @@ export async function mysInfoPromise(
 	cookie: string
 ): Promise<void> {
 	await baseInfoPromise( userID, uid, mysID, cookie );
-	const charIDs = <number[]>await detailInfoPromise( uid, cookie );
+	const charIDs = <number[]>await detailInfoPromise( userID, uid, cookie );
 	await characterInfoPromise( userID, charIDs, cookie );
 }
 
 export async function mysAvatarDetailInfoPromise(
+	userId: number | string,
 	uid: string,
 	avatar: number,
 	cookie: string,
 	constellation: CharacterCon
 ): Promise<ApiType.Skills> {
-	const { retcode, message, data } = await api.getAvatarDetailInfo( uid, avatar, cookie );
+	const { retcode, message, data } = await api.getAvatarDetailInfo( userId, uid, avatar, cookie );
 
 	if ( retcode !== 0 ) {
 		throw ErrorMsg.FORM_MESSAGE + message;
@@ -292,7 +294,7 @@ export async function abyssInfoPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	let { retcode, message, data } = await api.getSpiralAbyssInfo( uid, period, cookie );
+	let { retcode, message, data } = await api.getSpiralAbyssInfo( userID, uid, period, cookie );
 
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -341,6 +343,7 @@ export async function abyssInfoPromise(
 }
 
 export async function ledgerPromise(
+	userId: number | string,
 	uid: string,
 	month: number,
 	cookie: string = ""
@@ -360,7 +363,7 @@ export async function ledgerPromise(
 		cookie = cookies.get();
 		// cookies.increaseIndex();
 	}
-	const { retcode, message, data } = await api.getLedger( uid, month, cookie );
+	const { retcode, message, data } = await api.getLedger( userId, uid, month, cookie );
 
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( cookie );
@@ -374,12 +377,13 @@ export async function ledgerPromise(
 }
 
 export async function dailyNotePromise(
+	userId: string | number,
 	uid: string,
 	cookie: string
 ): Promise<ApiType.Note> {
 	let res: ResponseBody<ApiType.Note>;
 	try {
-		res = await api.getDailyNoteInfo( parseInt( uid ), cookie );
+		res = await api.getDailyNoteInfo( userId, parseInt( uid ), cookie );
 	} catch ( error ) {
 		const errMsg = error instanceof Error ? error.stack || "" : <string>error;
 		bot.logger.error( `用户 ${ uid } 的实时便笺数据查询失败，错误：${ errMsg }` );
@@ -387,9 +391,12 @@ export async function dailyNotePromise(
 		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 		throw `便笺数据查询错误，可能服务器出现了网络波动或米游社API故障，请${ appendMsg }联系持有者进行反馈`;
 	}
-	if ( res.retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	} else if ( res.retcode !== 0 ) {
+	
+	if ( res.retcode !== 0 ) {
+		bot.logger.error( `[genshin] [note] ${ JSON.stringify( res ) }` );
+		if ( res.retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
 		throw res.retcode === 1034 ? "便笺信息查询触发米游社验证码机制" : ErrorMsg.FORM_MESSAGE + res.message;
 	}
 
@@ -398,11 +405,12 @@ export async function dailyNotePromise(
 }
 
 export async function signInInfoPromise(
+	userId: number | string,
 	uid: string,
 	server: string,
 	cookie: string
 ): Promise<ApiType.SignInInfo> {
-	const { retcode, message, data } = await api.getSignInInfo( uid, server, cookie );
+	const { retcode, message, data } = await api.getSignInInfo( userId, uid, server, cookie );
 
 	if ( retcode === -100 ) {
 		throw Cookies.checkExpired( cookie );
@@ -415,11 +423,12 @@ export async function signInInfoPromise(
 }
 
 export async function signInResultPromise(
+	userId: number | string,
 	uid: string,
 	server: string,
 	cookie: string
 ): Promise<ApiType.SignInResult> {
-	const { retcode, message, data } = await api.mihoyoBBSSignIn( uid, server, cookie );
+	const { retcode, message, data } = await api.mihoyoBBSSignIn( userId, uid, server, cookie );
 
 	let errorMessage: string = "";
 	if ( retcode === -100 ) {
@@ -604,7 +613,7 @@ export async function charaPanelPromise( uid: number, self: boolean, sendMessage
 		}
 
 		let oldAvatars: ApiType.Panel.Avatar[] = detail?.avatars || [];
-		
+
 		detail = new EnKa().getDetailInfo( data );
 
 		/* 我也不知道为什么有的人报错，总之我先放两行代码在这里 */
