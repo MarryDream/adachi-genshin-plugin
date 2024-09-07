@@ -48,7 +48,7 @@ export default defineDirective( "order", async ({ sendMessage, messageData, matc
 	if ( res.code === "ok" ) {
 		await sendMessage( res.data );
 	} else {
-		logger.error( res.error );
+		logger.error( "[genshin][ledger]" + res.error );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 	}
 } );

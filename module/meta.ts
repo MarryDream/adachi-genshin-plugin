@@ -179,7 +179,7 @@ export class MetaManagement {
 				this.metaData[metaFile] = await this.loadMeta( metaFile );
 
 				if ( event !== "add" ) {
-					this.logger.info( `原神插件: 静态数据文件 [${ metaFile }] 内容更新` );
+					this.logger.info( `[genshin]静态数据文件 [${ metaFile }] 内容更新` );
 				}
 			} )
 		} )

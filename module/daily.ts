@@ -116,7 +116,7 @@ export class DailyClass {
 					await bot.client.sendGroupMsg( Number.parseInt( id ), subMessage );
 				}
 			} else {
-				bot.logger.error( res.error );
+				bot.logger.error( "[genshin][daily]" + res.error );
 				await bot.message.sendMaster( "每日素材订阅图片渲染异常，请查看日志进行检查" );
 			}
 
@@ -185,7 +185,7 @@ export class DailyClass {
 					this.getDataSet( week ).push( data );
 				}
 			} catch ( e ) {
-				bot.logger.error( `「${ targetName }」信息获取失败: ${ e }` );
+				bot.logger.error( `[genshin][daily]「${ targetName }」信息获取失败: ${ e }` );
 			}
 		}
 	}
@@ -254,7 +254,7 @@ export class DailyClass {
 		if ( res.code === "ok" ) {
 			return res.data;
 		} else {
-			bot.logger.error( res.error );
+			bot.logger.error( "[genshin][daily]" + res.error );
 			const CALL = <Order>bot.command.getSingle( "adachi.call", await bot.auth.get( userID ) );
 			const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 			return `图片渲染异常，请${ appendMsg }联系持有者进行反馈`;

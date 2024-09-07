@@ -6,15 +6,15 @@ import { privateClass } from "#/genshin/init";
 
 function parseID( msg: string ): number {
 	if ( !msg ) {
-		bot.logger.debug( `消息段解析调试: ${ msg }` );
+		bot.logger.debug( `[genshin]消息段解析调试: ${ msg }` );
 		return 0;
 	}
 	const id: number = parseInt( msg );
 	if ( !Number.isNaN( id ) ) {
 		return id - 1;
 	}
-	bot.logger.warn( `消息段解析出现异常: ${ msg }` );
-	
+	bot.logger.warn( `[genshin]消息段解析出现异常: ${ msg }` );
+
 	const res: string[] | null = msg.match( /(\d+)/g );
 	if ( res ) {
 		const list: string[] = res.sort( ( x, y ) => x.length - y.length );
@@ -26,7 +26,7 @@ function parseID( msg: string ): number {
 
 export async function getPrivateAccount( userID: number, idMsg: string, auth: Authorization ): Promise<string | Private> {
 	const id: number = parseID( idMsg );
-	
+
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	const a: AuthLevel = await auth.get( userID );
 	if ( accounts.length === 0 ) {
@@ -38,6 +38,6 @@ export async function getPrivateAccount( userID: number, idMsg: string, auth: Au
 		const appendMsg = PRIVATE_LIST ? `，请使用 ${ PRIVATE_LIST.getHeaders()[0] } 检查` : "";
 		return `无效的序号${ appendMsg }`;
 	}
-	
+
 	return accounts[id];
 }

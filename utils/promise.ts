@@ -44,12 +44,12 @@ async function checkQueryTimes( message: string ): Promise<string> {
 	if ( timesOut.test( message ) ) {
 		cookies.increaseIndex();
 		if ( cookies.getIndex() === 0 ) {
-			await bot.logger.warn( "所有cookie查询次数已用尽，请增加可用cookie到config/cookie.yaml" );
+			await bot.logger.warn( "[genshin]所有cookie查询次数已用尽，请增加可用cookie到config/cookie.yaml" );
 			const CALL = <Order>bot.command.getSingle( "adachi.call" );
 			const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 			return `所有cookie查询次数已用尽，请${ appendMsg }联系BOT主人添加`;
 		}
-		await bot.logger.warn( "当前cookie查询次数已用尽，已切换下一个" );
+		await bot.logger.warn( "[genshin]当前cookie查询次数已用尽，已切换下一个" );
 		return "当前cookie查询次数已用尽，已切换下一个，请再次尝试";
 	}
 	return message;
@@ -64,12 +64,15 @@ export async function baseInfoPromise(
 	const { retcode, message, data } = await api.getBaseInfo(
 		uid, mysID, cookie ? cookie : cookies.get()
 	);
-
-	if ( retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	} else if ( retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][baseInfo]${ JSON.stringify( { retcode, message, data } ) }` );
+		if ( retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
 		throw await checkQueryTimes( ErrorMsg.FORM_MESSAGE + message );
-	} else if ( !data.list || data.list.length === 0 ) {
+	}
+	
+	if ( !data.list || data.list.length === 0 ) {
 		throw ErrorMsg.NOT_FOUND;
 	}
 
@@ -94,7 +97,7 @@ export async function detailInfoPromise(
 
 	if ( detail.stats && detail.avatars && uid === parseInt( detail.uid ) ) {
 		if ( !cookie || JSON.parse( detail.avatars ).length > 8 ) {
-			bot.logger.info( `用户 ${ uid } 在一小时内进行过查询操作，将返回上次数据` );
+			bot.logger.info( `[genshin]用户 ${ uid } 在一小时内进行过查询操作，将返回上次数据` );
 			throw "gotten";
 		}
 	}
@@ -106,17 +109,18 @@ export async function detailInfoPromise(
 	const { retcode, message, data } = await api.getDetailInfo( userId, uid, cookie );
 
 	const allHomes = metaManagement.getMeta( "meta/home" );
-
-	if ( retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	}
-
-	/* 信息未公开 */
-	if ( retcode === 10102 ) {
-		throw ErrorMsg.NOT_PUBLIC;
-	}
-
 	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][detailInfo]${ JSON.stringify( { retcode, message, data } ) }` );
+		
+		if ( retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
+		
+		/* 信息未公开 */
+		if ( retcode === 10102 ) {
+			throw ErrorMsg.NOT_PUBLIC;
+		}
+		
 		throw await checkQueryTimes( ErrorMsg.FORM_MESSAGE + message );
 	}
 
@@ -129,7 +133,7 @@ export async function detailInfoPromise(
 		allHomes: JSON.stringify( allHomes )
 	} );
 	await bot.redis.setTimeout( `silvery-star.card-data-${ uid }`, 3600 );
-	bot.logger.info( `用户 ${ uid } 查询成功，数据已缓存` );
+	bot.logger.info( `[genshin]用户 ${ uid } 查询成功，数据已缓存` );
 
 	const charIDs: number[] = data.avatars.map( el => el.id );
 
@@ -148,19 +152,21 @@ export async function characterInfoPromise(
 	}
 	const { retcode, message, data } = await api.getCharactersInfo( userID, uid, charIDs, cookie );
 
-	if ( retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	}
-
-	/* 信息未公开 */
-	if ( retcode === 10102 ) {
-		await bot.redis.setHash( `silvery-star.card-data-${ uid }`, {
-			avatars: JSON.stringify( [] )
-		} );
-		return;
-	}
-
 	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][角色列表]${ JSON.stringify( { retcode, message, data } ) }` );
+		
+		if ( retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
+		
+		/* 信息未公开 */
+		if ( retcode === 10102 ) {
+			await bot.redis.setHash( `silvery-star.card-data-${ uid }`, {
+				avatars: JSON.stringify( [] )
+			} );
+			return;
+		}
+		
 		throw await checkQueryTimes( ErrorMsg.FORM_MESSAGE + message );
 	}
 
@@ -248,6 +254,7 @@ export async function mysAvatarDetailInfoPromise(
 	const { retcode, message, data } = await api.getAvatarDetailInfo( userId, uid, avatar, cookie );
 
 	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][角色详情]${ JSON.stringify( { retcode, message, data } ) }` );
 		throw ErrorMsg.FORM_MESSAGE + message;
 	}
 
@@ -285,7 +292,7 @@ export async function abyssInfoPromise(
 	if ( detail.length !== 0 ) {
 		const data: any = JSON.parse( detail );
 		if ( data.uid === uid && data.period === period ) {
-			bot.logger.info( `用户 ${ uid } 在一小时内进行过深渊查询操作，将返回上次数据` );
+			bot.logger.info( `[genshin]用户 ${ uid } 在一小时内进行过深渊查询操作，将返回上次数据` );
 			throw "gotten";
 		}
 	}
@@ -296,9 +303,11 @@ export async function abyssInfoPromise(
 	}
 	let { retcode, message, data } = await api.getSpiralAbyssInfo( userID, uid, period, cookie );
 
-	if ( retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	} else if ( retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][abyss]${ JSON.stringify( { retcode, message, data } ) }` );
+		if ( retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
 		throw await checkQueryTimes( ErrorMsg.FORM_MESSAGE + message );
 	}
 
@@ -339,7 +348,7 @@ export async function abyssInfoPromise(
 
 	await bot.redis.setString( dbKey, JSON.stringify( { ...data, uid, period } ) );
 	await bot.redis.setTimeout( dbKey, 3600 );
-	bot.logger.info( `用户 ${ uid } 的深渊数据查询成功，数据已缓存` );
+	bot.logger.info( `[genshin]用户 ${ uid } 的深渊数据查询成功，数据已缓存` );
 }
 
 export async function ledgerPromise(
@@ -354,7 +363,7 @@ export async function ledgerPromise(
 	if ( detail.length !== 0 ) {
 		const data: any = JSON.parse( detail );
 		if ( uid === data.uid.toString() && month === data.dataMonth ) {
-			bot.logger.info( `用户 ${ uid } 在六小时内进行过札记查询操作，将返回上次数据` );
+			bot.logger.info( `[genshin]用户 ${ uid } 在六小时内进行过札记查询操作，将返回上次数据` );
 			return Promise.reject( "gotten" );
 		}
 	}
@@ -365,15 +374,17 @@ export async function ledgerPromise(
 	}
 	const { retcode, message, data } = await api.getLedger( userId, uid, month, cookie );
 
-	if ( retcode === 10001 ) {
-		throw Cookies.checkExpired( cookie );
-	} else if ( retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][ledger]${ JSON.stringify( { retcode, message, data } ) }` );
+		if ( retcode === 10001 ) {
+			throw Cookies.checkExpired( cookie );
+		}
 		throw await checkQueryTimes( ErrorMsg.FORM_MESSAGE + message );
 	}
 
 	await bot.redis.setString( dbKey, JSON.stringify( data ) );
 	await bot.redis.setTimeout( dbKey, 21600 );
-	bot.logger.info( `用户 ${ uid } 的札记数据查询成功，数据已缓存` );
+	bot.logger.info( `[genshin]用户 ${ uid } 的札记数据查询成功，数据已缓存` );
 }
 
 export async function dailyNotePromise(
@@ -386,21 +397,21 @@ export async function dailyNotePromise(
 		res = await api.getDailyNoteInfo( userId, parseInt( uid ), cookie );
 	} catch ( error ) {
 		const errMsg = error instanceof Error ? error.stack || "" : <string>error;
-		bot.logger.error( `用户 ${ uid } 的实时便笺数据查询失败，错误：${ errMsg }` );
+		bot.logger.error( `[genshin]用户 ${ uid } 的实时便笺数据查询失败，错误：${ errMsg }` );
 		const CALL = <Order>bot.command.getSingle( "adachi.call" );
 		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 		throw `便笺数据查询错误，可能服务器出现了网络波动或米游社API故障，请${ appendMsg }联系持有者进行反馈`;
 	}
 	
 	if ( res.retcode !== 0 ) {
-		bot.logger.error( `[genshin] [note] ${ JSON.stringify( res ) }` );
+		bot.logger.error( `[genshin][note]${ JSON.stringify( res ) }` );
 		if ( res.retcode === 10001 ) {
 			throw Cookies.checkExpired( cookie );
 		}
 		throw res.retcode === 1034 ? "便笺信息查询触发米游社验证码机制" : ErrorMsg.FORM_MESSAGE + res.message;
 	}
 
-	bot.logger.info( `用户 ${ uid } 的实时便笺数据查询成功` );
+	bot.logger.info( `[genshin]用户 ${ uid } 的实时便笺数据查询成功` );
 	return res.data;
 }
 
@@ -412,13 +423,15 @@ export async function signInInfoPromise(
 ): Promise<ApiType.SignInInfo> {
 	const { retcode, message, data } = await api.getSignInInfo( userId, uid, server, cookie );
 
-	if ( retcode === -100 ) {
-		throw Cookies.checkExpired( cookie );
-	} else if ( retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][signInInfo]${ JSON.stringify( { retcode, message, data } ) }` );
+		if ( retcode === -100 ) {
+			throw Cookies.checkExpired( cookie );
+		}
 		throw ErrorMsg.FORM_MESSAGE + message;
 	}
 
-	bot.logger.info( `用户 ${ uid } 的米游社签到数据查询成功` );
+	bot.logger.info( `[genshin]用户 ${ uid } 的米游社签到数据查询成功` );
 	return data;
 }
 
@@ -431,10 +444,13 @@ export async function signInResultPromise(
 	const { retcode, message, data } = await api.mihoyoBBSSignIn( userId, uid, server, cookie );
 
 	let errorMessage: string = "";
-	if ( retcode === -100 ) {
-		errorMessage = Cookies.checkExpired( cookie );
-	} else if ( retcode !== 0 ) {
-		errorMessage = ErrorMsg.FORM_MESSAGE + message;
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][signInResult]${ JSON.stringify( { retcode, message, data } ) }` );
+		if ( retcode === -100 ) {
+			errorMessage = Cookies.checkExpired( cookie );
+		} else {
+			errorMessage = ErrorMsg.FORM_MESSAGE + message;
+		}
 	} else if ( data.gt || data.success !== 0 ) {
 		errorMessage = ErrorMsg.VERIFICATION_CODE;
 	}
@@ -443,7 +459,7 @@ export async function signInResultPromise(
 		throw new Error( errorMessage );
 	}
 
-	bot.logger.info( `用户 ${ uid } 今日米游社签到成功` );
+	bot.logger.info( `[genshin]用户 ${ uid } 今日米游社签到成功` );
 	return data;
 }
 
@@ -553,7 +569,7 @@ export async function calendarPromise(): Promise<ApiType.CalendarData[]> {
 			endTime: end
 		} );
 	}
-	bot.logger.info( "活动数据查询成功" );
+	bot.logger.info( "[genshin]活动数据查询成功" );
 	return calcDataList;
 }
 
@@ -638,7 +654,8 @@ export async function getCookieTokenBySToken(
 	uid: string ): Promise<{ uid: string, cookie_token: string }> {
 	const { retcode, message, data } = await api.getCookieAccountInfoBySToken( stoken, mid, uid );
 
-	if ( retcode === -100 || retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][Stoken->CToken]${ JSON.stringify( { retcode, message, data } ) }` );
 		throw checkCookieInvalidReason( message, parseInt( uid ) );
 	}
 	return {
@@ -667,7 +684,8 @@ export async function getMultiToken( mysID, cookie ): Promise<any> {
 	}
 
 	return new Promise( ( resolve, reject ) => {
-		if ( retcode === 1001 || retcode !== 0 ) {
+		if ( retcode !== 0 ) {
+			bot.logger.error( `[genshin][MultiToken]${ JSON.stringify( { retcode, message, data } ) }` );
 			return reject( checkCookieInvalidReason( message, mysID ) );
 		}
 		let cookie = {};
@@ -682,7 +700,8 @@ export async function getMultiToken( mysID, cookie ): Promise<any> {
 export async function getMidByLtoken( ltoken: string, ltuid: string ): Promise<string> {
 	const { retcode, message, data } = await verifyLtoken( ltoken, ltuid );
 
-	if ( retcode === 1001 || retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][Ltoken->Mid]${ JSON.stringify( { retcode, message, data } ) }` );
 		throw checkCookieInvalidReason( message, ltuid );
 	}
 	return data.userInfo.mid;
@@ -691,7 +710,8 @@ export async function getMidByLtoken( ltoken: string, ltuid: string ): Promise<s
 export async function getLtoken( stoken: string, mid: string ): Promise<string> {
 	const { retcode, message, data } = await getLTokenBySToken( stoken, mid );
 
-	if ( retcode === 1001 || retcode !== 0 ) {
+	if ( retcode !== 0 ) {
+		bot.logger.error( `[genshin][Ltoken]${ JSON.stringify( { retcode, message, data } ) }` );
 		throw checkCookieInvalidReason( message );
 	}
 	return data.ltoken;

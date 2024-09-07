@@ -43,7 +43,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, mat
 		if ( typeof error === "string" ) {
 			await sendMessage( <string>error );
 		} else {
-			logger.error( error.stack || error.message || error );
+			logger.error( "[genshin][panel-update]" + error.stack || error.message || error );
 		}
 		return;
 	}

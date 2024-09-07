@@ -13,7 +13,7 @@ export default defineDirective( "order", async ({ sendMessage, messageData, matc
 
 async function replaceCookie( userID: number, newCookie: string ) {
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
-	
+
 	if ( newCookie === "auto" ) {
 		const message: string[] = [ "自动更新Cookie结果如下：" ];
 		for ( let account of accounts ) {
@@ -28,7 +28,7 @@ async function replaceCookie( userID: number, newCookie: string ) {
 		}
 		return message.join( "\n" );
 	}
-	
+
 	try {
 		const { uid, mysID, cookie, stoken } = await checkMysCookieInvalid( newCookie );
 		for ( let account of accounts ) {
@@ -39,7 +39,7 @@ async function replaceCookie( userID: number, newCookie: string ) {
 		}
 		return await privateClass.addPrivate( uid, cookie, userID, stoken );
 	} catch ( error ) {
-		bot.logger.error( error );
+		bot.logger.error( "[genshin][replaceCookie]" + error );
 		return checkCookieInvalidReason( <string>error );
 	}
 }

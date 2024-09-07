@@ -89,10 +89,10 @@ export async function getBaseInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ MysID${ mysID } ][base] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][base][ MysID${ mysID } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ MysID${ mysID } ][base] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][base][ MysID${ mysID } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getBaseInfo( uid, mysID, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[base] " + verifyResult : verifyMsg;
@@ -118,10 +118,10 @@ export async function getDetailInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][detail] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][detail][ UID${ uid } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][detail] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][detail][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getDetailInfo( userId, uid, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[detail] " + verifyResult : verifyMsg;
@@ -155,10 +155,10 @@ export async function getCharactersInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][char] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][char][ UID${ uid } ] 查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][char] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][char][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getCharactersInfo( userId, uid, charIDs, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[char] " + verifyResult : verifyMsg;
@@ -184,10 +184,10 @@ export async function getDailyNoteInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][note] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][note][ UID${ uid } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][note] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][note][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getDailyNoteInfo( userId, uid, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[note] " + verifyResult : verifyMsg;
@@ -215,10 +215,10 @@ export async function getAvatarDetailInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][avatar] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][avatar][ UID${ uid } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][avatar] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][avatar][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getAvatarDetailInfo( userId, uid, avatarID, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[avatar] " + verifyResult : verifyMsg;
@@ -247,10 +247,10 @@ export async function getSpiralAbyssInfo(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][abyss] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][abyss][ UID${ uid } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][abyss] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][abyss][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getSpiralAbyssInfo( userId, uid, period, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[abyss] " + verifyResult : verifyMsg;
@@ -279,10 +279,10 @@ export async function getLedger(
 	if ( data.retcode !== 1034 ) {
 		return data;
 	}
-	bot.logger.warn( `[ UID${ uid } ][ledger] 查询遇到验证码` );
+	bot.logger.warn( `[genshin][ledger][ UID${ uid } ]查询遇到验证码` );
 	if ( config.verify.enable && time <= config.verify.repeat ) {
 		verifyResult = await bypassQueryVerification( cookie );
-		bot.logger.debug( `[ UID${ uid } ][ledger] 第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
+		bot.logger.debug( `[genshin][ledger][ UID${ uid } ]第 ${ time + 1 } 次验证码绕过${ verifyResult ? "失败：" + verifyResult : "成功" }` );
 		return await getLedger( userId, uid, mon, cookie, ++time, verifyResult );
 	}
 	throw config.verify.enable ? "[ledger] " + verifyResult : verifyMsg;
@@ -382,9 +382,9 @@ export async function mihoyoBBSSignIn( userId: number | string, uid: string, reg
 		return resp;
 	}
 	//遇到验证码
-	bot.logger.warn( `[ UID${ uid } ][sign] 签到遇到验证码` );
+	bot.logger.warn( `[genshin][sign][ UID${ uid } ]签到遇到验证码` );
 	if ( resp.data.gt && resp.data.challenge ) {
-		bot.logger.debug( `[ UID${ uid } ][sign] 遇到验证码，尝试绕过 ~` );
+		bot.logger.debug( `[genshin][sign][ UID${ uid } ]遇到验证码，尝试绕过 ~` );
 		return mihoyoBBSVerifySignIn( userId, uid, region, cookie, resp.data.gt, resp.data.challenge );
 	}
 	throw new Error( `解决签到验证码失败 ${ typeof result === 'string' ? "\n" + result : "" }` );
@@ -417,7 +417,7 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 			headers: getCommonHeaders( cookie, getDS( { is_high: true } ) )
 		} );
 		if ( !createVerify.data ) {
-			bot.logger.error( "[create]", createVerify );
+			bot.logger.error( "[genshin][create]", createVerify );
 			return "[create] 获取验证码失败";
 		}
 		data.gt = createVerify.data.gt;
@@ -440,7 +440,7 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 		}
 	} );
 	if ( analysisCode.code !== 0 || analysisCode.info !== "success" ) {
-		bot.logger.error( "[verify]", analysisCode );
+		bot.logger.error( "[genshin][verify]", analysisCode );
 		return `[verify] 验证失败 ${ typeof analysisCode === 'string' ? "\n" + analysisCode : analysisCode.info }`;
 	}
 	const body = {
@@ -453,7 +453,7 @@ export async function bypassQueryVerification( cookie: string, gt?: string, chal
 	} );
 	/* 验证码过期 */
 	if ( verifyResult.retcode !== 0 || verifyResult.message !== 'OK' ) {
-		bot.logger.error( "[submit]", verifyResult );
+		bot.logger.error( "[genshin][submit]", verifyResult );
 		return `[submit] 验证失败 ${ typeof verifyResult === 'string' ? "\n" + verifyResult : verifyResult.message }`;
 	}
 	return "";
@@ -476,7 +476,7 @@ export async function mihoyoBBSVerifySignIn( userId: number | string, uid: strin
 	} );
 	
 	if ( verifyCode.code !== 0 || verifyCode.info !== "success" ) {
-		bot.logger.error( verifyCode );
+		bot.logger.error( "[genshin][verify]" + JSON.stringify( verifyCode ) );
 		throw `[verify] 验证失败 ${ typeof verifyCode === 'string' ? "\n" + verifyCode : verifyCode.info }`;
 	}
 	
@@ -636,13 +636,13 @@ export async function getDeviceFp( userId: string | number, cookie: string ): Pr
 			registration_id: getMiHoYoRandomStr( 19 )
 		}
 		const saveHeaders = { ...commonHeaders, "x-rpc-device_fp": deviceFp }
-		bot.logger.debug( "[获取device_fp] 保存登陆设备信息" );
+		bot.logger.debug( "[genshin][获取device_fp]保存登陆设备信息" );
 		try {
 			const { data: deviceLogin } = await $https.FETCH_DEVICE_LOGIN.post( saveParams, { headers: saveHeaders } );
 			const { data: saveDevice } = await $https.FETCH_SAVE_DEVICE.post( saveParams, { headers: saveHeaders } );
-			bot.logger.debug( `[获取device_fp] 设备登陆完成 ${ JSON.stringify( [ deviceLogin, saveDevice ] ) }` );
+			bot.logger.debug( `[genshin][获取device_fp]设备登陆完成 ${ JSON.stringify( [ deviceLogin, saveDevice ] ) }` );
 		} catch ( error ) {
-			bot.logger.error( "[获取device_fp] 存储米游社设备信息报错:", error );
+			bot.logger.error( "[genshin][获取device_fp]存储米游社设备信息报错:", error );
 		}
 	}
 	return { device_id: deviceId, device_fp: deviceFp };

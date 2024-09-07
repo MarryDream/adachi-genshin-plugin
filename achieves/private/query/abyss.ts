@@ -16,7 +16,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 }: InputParameter<"switch"> ) {
 	const userInfo: string = `UID-${ uid }`;
 	const floorList: number[] = [];
-	
+
 	floorList.push( 0 );
 	await redis.setHash( `silvery-star.abyss-temp-${ userID }-${ 0 }`, {
 		floor: 0,
@@ -31,7 +31,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 		totalBattleTimes: abyss.totalBattleTimes,
 		totalStar: abyss.totalStar
 	} );
-	
+
 	for ( let floorData of abyss.floors ) {
 		const floor: number = floorData.index;
 		const dbKey: string = `silvery-star.abyss-temp-${ userID }-${ floor }`;
@@ -42,7 +42,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 			data: JSON.stringify( floorData )
 		} );
 	}
-	
+
 	const content: ForwardElem = {
 		type: "forward",
 		messages: []
@@ -52,7 +52,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 			"/abyss/index.html", { qq: userID, floor }
 		);
 		if ( res.code === "error" ) {
-			logger.error( res.error );
+			logger.error( "[genshin][abyss]" + res.error );
 			continue;
 		}
 		content.messages.push( {
@@ -60,7 +60,7 @@ async function forwardAchieves( abyss: Abyss, uid: string, userID: number, {
 			content: segment.image( <string>res.data )
 		} );
 	}
-	
+
 	await sendMessage( content, false );
 }
 
@@ -85,7 +85,7 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: number, {
 		totalStar: abyss.totalStar,
 		floors: JSON.stringify( abyss.floors )
 	} );
-	
+
 	const res: RenderResult = await renderer.asSegment(
 		"/abyss-single/index.html", { qq: userID }
 	);
@@ -98,20 +98,20 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: number, {
 
 export default defineDirective( "switch", async ( i ) => {
 	const { sendMessage, messageData, matchResult, auth, redis } = i;
-	
+
 	const userID: number = messageData.user_id;
-	
+
 	// 是否一图流显示
 	const isForwardMsg = matchResult.match.includes( "-l" );
-	
+
 	const data: string = matchResult.match.filter( m => m !== "-l" )[0] ?? "";
-	
+
 	const info: Private | string = await getPrivateAccount( userID, data, auth );
 	if ( typeof info === "string" ) {
 		await sendMessage( info );
 		return;
 	}
-	
+
 	const { uid, cookie } = info.setting;
 	const period: number = matchResult.isOn ? 1 : 2;
 	try {
@@ -123,20 +123,20 @@ export default defineDirective( "switch", async ( i ) => {
 			return;
 		}
 	}
-	
+
 	const abyssData: string = await redis.getString( `silvery-star.abyss-data-${ uid }` );
-	
+
 	if ( abyssData.length === 0 ) {
 		await sendMessage( "查询错误" );
 		return;
 	}
 	const abyss: Abyss = JSON.parse( abyssData );
-	
+
 	if ( !abyss.floors || abyss.floors.length === 0 ) {
 		await sendMessage( "暂未查询到深渊数据" );
 		return;
 	}
-	
+
 	if ( isForwardMsg ) {
 		await forwardAchieves( abyss, uid, userID, i );
 	} else {

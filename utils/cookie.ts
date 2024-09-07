@@ -48,7 +48,7 @@ export function checkCookieInvalidReason( message: string, id?: string | number,
 	const COMMIT = <Order>bot.command.getSingle( "silvery-star-private-commit", AuthLevel.Master );
 	if ( timesOut.test( message ) ) {
 		if ( cookies.getIndex() === 0 ) {
-			bot.logger.warn( "可能所有公共cookie查询次数已上限，请增加可用cookie到config/cookie.yaml" );
+			bot.logger.warn( "[genshin]可能所有公共cookie查询次数已上限，请增加可用cookie到config/cookie.yaml" );
 			return `可能公共cookie查询次数已上限\n` +
 				`建议使用 ${ COMMIT.getHeaders()[0] } 贡献你的授权\n` +
 				`贡献的Cookie仅会用于公共查询服务\n` +
@@ -60,7 +60,7 @@ export function checkCookieInvalidReason( message: string, id?: string | number,
 	}
 	/* 去除空消息的可能性，保证消息能正常发出 */
 	matchResult = matchResult ? matchResult : message ? message : ErrorMsg.UNKNOWN;
-	header ? bot.logger.warn( header + matchResult ) : "";
+	header ? bot.logger.warn( "[genshin][cookie]" + header + matchResult ) : "";
 	return header + matchResult;
 }
 
@@ -71,7 +71,7 @@ export function checkCookieInvalidReason( message: string, id?: string | number,
  *
  * */
 export async function checkMysCookieInvalid( rawCookie: string ): Promise<FilterMysCookieResult> {
-	
+
 	let COOKIE = '', STOKEN = '', mysID;
 	/* 首先是处理login_ticket，现在通过ticket获取的Stoken已经无法刷新CToken */
 	if ( rawCookie.includes( "login_ticket=" ) && rawCookie.includes( "login_uid=" ) ) {
@@ -108,20 +108,20 @@ export async function checkMysCookieInvalid( rawCookie: string ): Promise<Filter
 	} else {
 		throw ErrorMsg.COOKIE_FORMAT_INVALID;
 	}
-	
+
 	/* 验证Cookie的有效性 */
 	const { retcode, message, data } = await getBaseInfo( 100000001, parseInt( mysID ), COOKIE );
-	
+
 	if ( retcode === 10001 ) {
 		throw Cookies.checkExpired( COOKIE );
 	}
-	
+
 	if ( retcode !== 0 ) {
 		throw checkCookieInvalidReason( message );
 	} else if ( !data.list || data.list.length === 0 ) {
 		throw ErrorMsg.NOT_FOUND;
 	}
-	
+
 	const genshinInfo: ApiType.Game | undefined = data.list.find( el => el.gameId === 2 );
 	if ( !genshinInfo ) {
 		throw ErrorMsg.NOT_FOUND;
@@ -140,7 +140,7 @@ export async function refreshTokenBySToken( pri: Private ): Promise<FilterMysCoo
 	if ( !stoken ) {
 		throw `没有授权SToken，无法刷新CToken`;
 	}
-	bot.logger.info( `[${ pri.setting.mysID }] 正在根据SToken刷新CToken` );
+	bot.logger.info( `[genshin][${ pri.setting.mysID }] 正在根据SToken刷新CToken` );
 	return await checkMysCookieInvalid( pri.setting.stoken );
 }
 
