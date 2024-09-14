@@ -389,6 +389,18 @@ const privateLedger: OrderConfig = {
 		"只填写一个参数时将被视为月份"
 };
 
+const privateToggleSystem: OrderConfig = {
+	type: "order",
+	cmdKey: "silvery-star.private-toggle-system",
+	desc: [ "关闭用户订阅", "[note|sign] [QQ]" ],
+	headers: [ "tsys" ],
+	regexps: [ "note|sign", "\\d+" ],
+	main: "achieves/private/system-toggle",
+	auth: AuthLevel.Master,
+	detail: "关闭指定用户id（如QQ）的 note 定时提醒或 sign 自动签到\n" +
+		"默认仅 master 可用"
+};
+
 export default <ConfigType[]>[
 	bind, today, privateCharQuery, daily,
 	guide, information, alias, domain,
@@ -398,6 +410,6 @@ export default <ConfigType[]>[
 	privateSubscribe, privateReplace, privateCancel,
 	privateRemove, privateSubList, privateReorder,
 	privateToggleSign, privateToggleNote, privateNoteEvent,
-	privateBindDevice, privateUnBindDevice,
-	privateNowNote, privateAbyssQuery, privateLedger
+	privateBindDevice, privateUnBindDevice, privateNowNote,
+	privateAbyssQuery, privateLedger, privateToggleSystem
 ];
